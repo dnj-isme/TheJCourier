@@ -50,12 +50,6 @@ public class SceneEventObserver {
     return pressStatus.get(code);
   }
   
-  public void setPressing(KeyCode code, boolean isPressing) {
-    pressStatus.put(code, isPressing);
-    notifyTarget();
-    System.out.println("Notified");
-  }
-  
   public void register(SceneTemplate target) {
      observants.add(target);
   }

@@ -64,12 +64,20 @@ public final class AssetManager {
     imageCollection.put("item", loadImage("assets/sprite/item.png"));
     imageCollection.put("frame", loadImage("assets/sprite/frame.png"));
     
+    // Developer Room Section
+    imageCollection.put("boss_placeholder", loadImage("assets/sprite/boss_placeholder.png"));
+    
     // Player Section
     imageCollection.put("player_idle", loadImage("assets/sprite/player/player_idle.png"));
     imageCollection.put("player_walk_top", loadImage("assets/sprite/player/player_walk_top.png"));
     imageCollection.put("player_walk_bottom", loadImage("assets/sprite/player/player_walk_bottom.png"));
     imageCollection.put("player_fall", loadImage("assets/sprite/player/player_fall.png"));
     imageCollection.put("player_jump", loadImage("assets/sprite/player/player_jump.png"));
+    imageCollection.put("player_duck", loadImage("assets/sprite/player/player_duck.png"));
+    imageCollection.put("player_glider_attack", loadImage("assets/sprite/player/player_glider_attack.png"));
+    imageCollection.put("player_glider", loadImage("assets/sprite/player/player_glider.png"));
+    imageCollection.put("player_attack_1", loadImage("assets/sprite/player/player_attack_1.png"));
+    imageCollection.put("player_attack_2", loadImage("assets/sprite/player/player_attack_2.png"));
     
     // [END]
 

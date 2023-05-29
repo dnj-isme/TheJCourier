@@ -5,6 +5,8 @@ import app.main.controller.asset.AssetManager;
 import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.PlayerState;
+import app.utility.Utility;
+import app.utility.canvas.GameScene;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Vector2;
 import javafx.scene.canvas.GraphicsContext;
@@ -26,12 +28,14 @@ public class PlayerJumpState extends PlayerState{
   private SceneEventObserver eventObserver;
   private KeyBinding keyBinding;
   private Player player;
+  private KeyCode jumpBind;
 
   private PlayerJumpState(Player player) {
     super(player);
     this.player = player;
     eventObserver = player.getEventObserver();
     keyBinding = player.getKeyBinding();
+    jumpBind = keyBinding.getBinding(KeyBinding.JUMP);
 
     AssetManager asset = AssetManager.getInstance();
     sprite = asset.findImage("player_jump");
@@ -59,22 +63,29 @@ public class PlayerJumpState extends PlayerState{
   
   @Override
   public void update(RenderProperties properties) {
-    super.update(properties);
+    detectGlide();
     
-    if(player.isTouchingGround() || player.canCloudStep()) {
-      KeyCode jumpBind = keyBinding.getBinding(KeyBinding.JUMP);
-      if(eventObserver.isPressing(jumpBind)) {
+    Vector2 direction = updatePlayerDirection();
+    double movement = direction.getX() * player.getMoveSpeed();
+    player.getVelocity().setX(movement);
+    
+    if((!player.isJumping() && !player.isGliding() && player.isTouchingGround()) || 
+        (player.isJumping() && player.canCloudStep())) {
+      
+      if(eventObserver.isPressing(jumpBind) && player.isReleaseJump() && player.isReleaseGlide()) {
+        player.setReleaseJump(false);
         player.setCloudStep(false);
-        eventObserver.setPressing(jumpBind, false);
         player.getVelocity().setY(-player.getJumpForce());
+        player.setJump(true);
+        if(player.canCloudStep()) {
+          player.setCloudStep(false);
+        }
       }
     }
   }
   
   @Override
   public void fixedUpdate(RenderProperties properties) {
-    super.fixedUpdate(properties);
-    
     handleGravity(properties.getFixedDeltaTime(), player.getGravity());
   }
 }

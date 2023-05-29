@@ -49,6 +49,7 @@ public abstract class GameScene {
     canvas.setScaleY(scale);
 
     context = canvas.getGraphicsContext2D();
+    context.setImageSmoothing(false);
     frameCount = 0;
 
     animationTimer = new AnimationTimer() {
@@ -61,7 +62,7 @@ public abstract class GameScene {
     this.border = 0;
 
     setFps(controller.getFPS());
-    initializeGameObjects(gameObjects);
+    initializeGameObjects();
   }
 
   public Vector2 getCanvasSize() {
@@ -87,7 +88,7 @@ public abstract class GameScene {
     this.border = border;
   }
 
-  protected abstract void initializeGameObjects(Vector<GameObject> gameObjects);
+  protected abstract void initializeGameObjects();
 
   boolean first = true;
 
@@ -113,14 +114,14 @@ public abstract class GameScene {
     }
 
     notifyUpdate(deltaTime);
-    performGameLogic(deltaTime);
+    performGameLogic(new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount));
 
     drawGameObjects(deltaTime);
 
     lastFrameTime = current;
     frameCount++;
   }
-
+  
   public long getTimeSpent() {
     return (long) ((lastFrameTime - startFrameTime) * 1000);
   }
@@ -151,10 +152,7 @@ public abstract class GameScene {
     }
   }
 
-  public void performGameLogic(double deltaTime) {
-    // 1. Collision detection
-
-  }
+  public abstract void performGameLogic(RenderProperties properties);
 
   private void drawGameObjects(double deltaTime) {
     RenderProperties prop = new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount);

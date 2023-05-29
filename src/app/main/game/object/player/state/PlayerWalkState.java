@@ -53,8 +53,7 @@ public class PlayerWalkState extends PlayerState {
     int ticks = (int) properties.getFrameCount() / cd;
     int x = ticks % 8 * 60;
     
-    
-    Vector2 facing = player.getFacing();
+    Vector2 facing = updatePlayerDirection();
     if(facing.getX() < 0) {
       renderPos.setX(renderPos.getX() + 60);
     }
@@ -65,10 +64,14 @@ public class PlayerWalkState extends PlayerState {
   
   @Override
   public void update(RenderProperties properties) {
-    super.update(properties);
-    
     Vector2 direction = updatePlayerDirection();
     double movement = direction.getX() * player.getMoveSpeed();
     player.getVelocity().setX(movement);
+  }
+
+  @Override
+  public void fixedUpdate(RenderProperties properties) {
+    // TODO Auto-generated method stub
+    
   }
 }

@@ -3,7 +3,7 @@ package app.main.game.object.player;
 public enum PlayerInputState {
   Walk, AttackWalk,
 
-  Jump, Fall, AirborneJump,
+  Jump, Fall,
 
   Glide, AttackGlide,
 

@@ -11,6 +11,53 @@ public class Vector2 {
   public void setY(double y) {
     this.y = y;
   }
+  
+  public void setAdd(Vector2 vector) {
+    setAdd(vector.getX(), vector.getY());
+  }
+  
+  public void setAdd(double x, double y) {
+    this.x += x;
+    this.y += y;
+  }
+  
+  public void setSubs(Vector2 vector) {
+    setSubs(vector.getX(), vector.getY());
+  }
+  
+  public void setSubs(double x, double y) {
+    this.x -= x;
+    this.y -= y;
+  }
+  
+  public void setMult(double number) {
+    this.x *= number;
+    this.y *= number;
+  }
+  
+  public void addX(double value) {
+    this.x += value;
+  }
+  
+  public void addY(double value) {
+    this.y += value;
+  }
+  
+  public void subsX(double value) {
+    this.x -= value;
+  }
+  
+  public void subsY(double value) {
+    this.y -= value;
+  }
+  
+  public void multX(double value) {
+    this.x *= value;
+  }
+  
+  public void multY(double value) {
+    this.y *= value;
+  }
 
   public void set(double x, double y) {
     this.x = x;

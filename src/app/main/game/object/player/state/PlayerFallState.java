@@ -62,7 +62,7 @@ public class PlayerFallState extends PlayerState {
   
   @Override
   public void update(RenderProperties properties) {
-    super.update(properties);
+    detectGlide();
     
     // Movement X
     Vector2 direction = updatePlayerDirection();
@@ -73,6 +73,5 @@ public class PlayerFallState extends PlayerState {
   @Override
   public void fixedUpdate(RenderProperties properties) {
     handleGravity(properties.getFixedDeltaTime(), player.getGravity());
-    super.fixedUpdate(properties);
   }
 }

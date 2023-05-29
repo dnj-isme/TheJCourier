@@ -25,7 +25,7 @@ public abstract class PlayerState implements Drawable, Updatable {
     keyBinding = player.getKeyBinding();
   }
   
-  public Player getPlayer() {
+  protected Player getPlayer() {
     return player;
   }
   
@@ -44,73 +44,40 @@ public abstract class PlayerState implements Drawable, Updatable {
     return direction;
   }
   
-  @Override
-  public void update(RenderProperties properties) {
-//    System.out.println(player.getCurrentState());
-    switch(player.getCurrentState()) {
-    case Attack:
-      break;
-    case AttackDuck:
-      break;
-    case AttackGlide:
-      break;
-    case AirborneJump:
-      break;
-    case AttackWalk:
-      break;
-    case Duck:
-      break;
-    case Fall:
-      player.setState(PlayerFallState.load(player));
-      break;
-    case Glide:
-      break;
-    case Jump:
-      player.setState(PlayerJumpState.load(player));
-      break;
-    case Walk:
-      player.setState(PlayerWalkState.load(player));
-      break;
-    case Idle: default:
-      player.setState(PlayerIdleState.load(player));
-      break;
-    }
-  }
-  
-  public void hanldeHorizontalMovement() {
+  protected void hanldeHorizontalMovement() {
     Vector2 direction = updatePlayerDirection();
     double movement = direction.getX() * player.getMoveSpeed();
     player.getVelocity().setX(movement);
   }
   
-
-  public void handleGravity(double deltaTime, double gravity) {
-    if(!player.isTouchingGround()) {
-      player.getVelocity().setY(player.getVelocity().getY() + gravity * deltaTime);
+  protected void handleGravity(double deltaTime, double gravity) {
+    double velocityY = player.getVelocity().getY();
+    if(!player.isTouchingGround() || velocityY < 0) {
+      player.getVelocity().setY(velocityY + gravity * deltaTime);
     }
     else {
       player.getVelocity().setY(0);
     }
   }
   
-  public void handleGravity(double deltaTime, double gravity, double maxFallSpeed) {
-    if(!player.isTouchingGround()) {
-      player.getVelocity().setY(Math.min(player.getVelocity().getY() + gravity * deltaTime, maxFallSpeed));
+  protected void handleGravity(double deltaTime, double gravity, double maxFallSpeed) {
+    double velocityY = player.getVelocity().getY();
+    if(!player.isTouchingGround() || velocityY < 0) {
+      player.getVelocity().setY(Math.min(velocityY + gravity * deltaTime, maxFallSpeed));
     }
     else {
       player.getVelocity().setY(0);
     }
   }
   
-  
-  @Override
-  public void fixedUpdate(RenderProperties properties) {
-    Vector2 movement = player.getVelocity().mult(properties.getFixedDeltaTime());
-    Vector2 pos = player.getPosition();
-    double x = Utility.range(pos.getX() + movement.getX(), 0, GameScene.WIDTH);
-    double y = Utility.range(pos.getY() + movement.getY(), 0, GameScene.HEIGHT);
-    x = Utility.range(x, 0, GameScene.WIDTH - player.getSize().getX());
-    y = Utility.range(y, 0, GameScene.HEIGHT - player.getSize().getY());
-    player.setPosition(x, y);
+  protected void detectGlide() {
+    if(!player.isTouchingGround() && player.isReleaseJump() && 
+        eventObserver.isPressing(keyBinding.getBinding(KeyBinding.JUMP))) {
+      player.setGlide(true);
+      player.setReleaseGlide(false);
+    }
+    else {
+      player.setGlide(false);
+    }
   }
 }
