@@ -2,9 +2,13 @@ package app.main.game.object.player;
 
 import app.main.controller.GameController;
 import app.main.controller.KeyBinding;
+import app.main.controller.asset.AssetManager;
+import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneEventObserver;
-import app.main.game.object.player.state.PlayerAttackDuckState;
+import app.main.game.object.player.shuriken.Shuriken;
+import app.main.game.object.player.shuriken.ShurikenPool;
 import app.main.game.object.player.state.PlayerAttackGlideState;
+import app.main.game.object.player.state.PlayerAttackMidAir;
 import app.main.game.object.player.state.PlayerAttackState;
 import app.main.game.object.player.state.PlayerAttackWalkState;
 import app.main.game.object.player.state.PlayerDuckState;
@@ -13,18 +17,30 @@ import app.main.game.object.player.state.PlayerGlideState;
 import app.main.game.object.player.state.PlayerIdleState;
 import app.main.game.object.player.state.PlayerJumpState;
 import app.main.game.object.player.state.PlayerWalkState;
+import app.main.game.object.player.swing.PlayerGlideSwing;
+import app.main.game.object.player.swing.PlayerSwing;
 import app.utility.Utility;
 import app.utility.canvas.Collidable;
 import app.utility.canvas.GameObject;
 import app.utility.canvas.GameScene;
+import app.utility.canvas.ObjectLayer;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Updatable;
 import app.utility.canvas.Vector2;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 
 public class Player extends GameObject implements Updatable, Collidable {
+  
+  private static Player instance;
+  public static Player getInstance(GameScene owner) {
+    if(instance == null) {
+      instance = new Player(owner);
+    }
+    return instance;
+}
 
   private GameController gameController;
   private PlayerState state;
@@ -33,36 +49,60 @@ public class Player extends GameObject implements Updatable, Collidable {
 
   // Player stats
   private int health = 8;
-  private int shuriken = 4;
+  private int shuriken = 5;
   private boolean glide = false;
   private int attackCount = 0;
+
+  private boolean firstGlide = false;
 
   // Player Movements
   private boolean cloudStep = false;
   private boolean jump = false;
   private boolean duck = false;
   private boolean attack = false;
+  private boolean teleport = false;
+
+  private long startAttackFrame = -1;
+  private boolean finishedAttack = false;
+
+  private long lastHitOnGlide = -1;
+  private boolean glideHit = false;
+
+  private double teleportDistance = 50;
+  private Vector2 teleportLocation = new Vector2();
+  private double radius = 0;
+  private double shrinkSpeed = 40;
 
   // Related to input
   private boolean releaseJump = true;
   private boolean releaseAttack = true;
   private boolean releaseGlide = true;
+  private boolean releaseShuriken = true;
+  private boolean releaseTeleport = true;
+
+  private Image sprite = AssetManager.getInstance().findImage("player_cloudstep");
 
   // Movement constants
   private double gravity = 3000;
   private double maxGlideFall = 160;
   private double moveSpeed = 400;
   private double jumpForce = 750;
+  private double smallJumpForce = 500;
 
   // Movement calculations
   private Vector2 facing = Vector2.RIGHT();
   private Vector2 velocity = Vector2.ZERO();
 
+  private ShurikenPool pool;
+  private PlayerSwing playerSwing;
+  private PlayerGlideSwing playerGlideSwing;
+  private long startRecharge = -1;
+
   public static Vector2 SIZE = new Vector2(24, 40);
 
-  public void reset() {
+  public void reset(GameScene owner) {
     health = 8;
-    shuriken = 4;
+    shuriken = 5;
     glide = false;
     cloudStep = false;
     jump = false;
@@ -70,18 +110,132 @@ public class Player extends GameObject implements Updatable, Collidable {
     releaseJump = true;
     releaseAttack = true;
     releaseGlide = true;
+    releaseShuriken = true;
+    releaseTeleport = true;
     facing = Vector2.RIGHT();
     velocity = Vector2.ZERO();
     attackCount = 0;
+    startAttackFrame = -1;
+    finishedAttack = false;
+    lastHitOnGlide = -1;
+    glideHit = false;
+    
+    
+    setOwner(owner);
+    pool = new ShurikenPool(shuriken, owner);
+    playerSwing = new PlayerSwing(owner, this);
+    playerGlideSwing = new PlayerGlideSwing(owner, this);
+
+    owner.addGameObject(new PlayerUI(owner, this));
+    owner.addGameObject(playerSwing);
+    owner.addGameObject(playerGlideSwing);
   }
 
   public Player(GameScene owner) {
     super(owner);
+    setLayer(ObjectLayer.Block);
+
     gameController = GameController.getInstance();
     eventObserver = SceneEventObserver.getInstance();
     keyBinding = KeyBinding.getIntance();
     state = PlayerIdleState.load(this);
+
     super.setSize(SIZE);
+    pool = new ShurikenPool(shuriken, getOwner());
+    playerSwing = new PlayerSwing(owner, this);
+    playerGlideSwing = new PlayerGlideSwing(owner, this);
+
+    owner.addGameObject(new PlayerUI(owner, this));
+    owner.addGameObject(playerSwing);
+    owner.addGameObject(playerGlideSwing);
+  }
+
+  public boolean canTeleport() {
+    return teleport;
+  }
+
+  public void setTeleport(boolean teleport) {
+    this.teleport = teleport;
+  }
+
+  public boolean isReleaseTeleport() {
+    return releaseTeleport;
+  }
+
+  public void setReleaseTeleport(boolean releaseTeleport) {
+    this.releaseTeleport = releaseTeleport;
+  }
+
+  public ShurikenPool getPool() {
+    return pool;
+  }
+
+  public void setPool(ShurikenPool pool) {
+    this.pool = pool;
+  }
+
+  public PlayerSwing getPlayerSwing() {
+    return playerSwing;
+  }
+
+  public void setPlayerSwing(PlayerSwing playerSwing) {
+    this.playerSwing = playerSwing;
+  }
+
+  public PlayerGlideSwing getPlayerGlideSwing() {
+    return playerGlideSwing;
+  }
+
+  public void setPlayerGlideSwing(PlayerGlideSwing playerGlideSwing) {
+    this.playerGlideSwing = playerGlideSwing;
+  }
+
+  public boolean isFirstGlide() {
+    return firstGlide;
+  }
+
+  public void setFirstGlide(boolean firstGlide) {
+    this.firstGlide = firstGlide;
+  }
+
+  public boolean isGlideHit() {
+    return glideHit;
+  }
+
+  public void setGlideHit(boolean glideHit) {
+    this.glideHit = glideHit;
+  }
+
+  public long getLastHitOnGlide() {
+    return lastHitOnGlide;
+  }
+
+  public void setLastHitOnGlide(long lastHitOnGlide) {
+    this.lastHitOnGlide = lastHitOnGlide;
+  }
+
+  public double getSmallJumpForce() {
+    return smallJumpForce;
+  }
+
+  public void setSmallJumpForce(double smallJumpForce) {
+    this.smallJumpForce = smallJumpForce;
+  }
+
+  public boolean isFinishedAttack() {
+    return finishedAttack;
+  }
+
+  public void setFinishedAttack(boolean finishedAttack) {
+    this.finishedAttack = finishedAttack;
+  }
+
+  public long getStartAttackFrame() {
+    return startAttackFrame;
+  }
+
+  public void setStartAttackFrame(long startAttackFrame) {
+    this.startAttackFrame = startAttackFrame;
   }
 
   public int getAttackCount() {
@@ -92,7 +246,7 @@ public class Player extends GameObject implements Updatable, Collidable {
     attackCount++;
   }
 
-  public boolean isAttack() {
+  public boolean isAttacking() {
     return attack;
   }
 
@@ -230,13 +384,15 @@ public class Player extends GameObject implements Updatable, Collidable {
     double y = getPosition().getY();
 
     if (facing.getX() < 0) {
-      x -= swingSize.getX();
+      x -= swingSize.getX() - 5;
     } else {
-      x += getSize().getX();
+      x += getSize().getX() - 5;
     }
 
     if (duck) {
       y += getSize().getY() * 0.5;
+    } else {
+      y += 5;
     }
 
     return new Vector2(x, y);
@@ -252,31 +408,40 @@ public class Player extends GameObject implements Updatable, Collidable {
     KeyCode jumpBinding = binding.getBinding(KeyBinding.JUMP);
     KeyCode duckBinding = binding.getBinding(KeyBinding.DUCK);
 
-    if (!isTouchingGround()) {
+    if (isTouchingGround()) {
+      if (observer.isPressing(jumpBinding) && releaseJump && releaseGlide) {
+        return PlayerInputState.Jump;
+      }
+
+      if (observer.isPressing(duckBinding)) {
+        return PlayerInputState.Duck;
+      }
+
+      if (observer.isPressing(leftBinding) || observer.isPressing(rightBinding)) {
+        if (observer.isPressing(attackBinding) && releaseAttack || attack) {
+          return PlayerInputState.AttackWalk;
+        }
+        return PlayerInputState.Walk;
+      }
+
+      if (observer.isPressing(attackBinding) && releaseAttack || attack) {
+        return PlayerInputState.Attack;
+      }
+      return PlayerInputState.Idle;
+    } else {
       if (glide) {
-        return PlayerInputState.Glide;
+        if (observer.isPressing(attackBinding) && releaseAttack || attack) {
+          return PlayerInputState.AttackGlide;
+        } else
+          return PlayerInputState.Glide;
+      }
+
+      if (observer.isPressing(attackBinding) && releaseAttack || attack) {
+        return PlayerInputState.AttackMidAir;
       }
 
       return velocity.getY() >= 0 ? PlayerInputState.Fall : PlayerInputState.Jump;
     }
-
-    if (observer.isPressing(jumpBinding) && releaseJump && releaseGlide) {
-      return PlayerInputState.Jump;
-    }
-
-    if (observer.isPressing(duckBinding)) {
-      return PlayerInputState.Duck;
-    }
-
-    if (observer.isPressing(leftBinding) || observer.isPressing(rightBinding)) {
-      return PlayerInputState.Walk;
-    }
-
-    if (observer.isPressing(attackBinding) && releaseAttack || attack) {
-      return PlayerInputState.Attack;
-    }
-
-    return PlayerInputState.Idle;
   }
 
   @Override
@@ -286,6 +451,22 @@ public class Player extends GameObject implements Updatable, Collidable {
       context.setFill(Color.GREEN);
       context.fillRect(getPosition().getX(), getPosition().getY(), getSize().getX(), getSize().getY());
     }
+
+    if (radius > 0) {
+      double topLeftX = teleportLocation.getX() - radius;
+      double topLeftY = teleportLocation.getY() - radius;
+      context.setFill(Color.rgb(173, 216, 230, 0.6));
+      context.fillOval(topLeftX, topLeftY, radius * 2, radius * 2);
+    }
+
+    if (cloudStep) {
+      int index = (int) ((properties.getFrameCount() / 2) % 4);
+      int xPos = 24 * index;
+      double xDes = getPosition().getX() + (getSize().getX() / 2) - 12;
+
+      context.drawImage(sprite, xPos, 0, 24, 24, xDes, getPosition().getY() + getSize().getY(), 24, 24);
+    }
+
     state.render(properties);
   }
 
@@ -296,10 +477,17 @@ public class Player extends GameObject implements Updatable, Collidable {
 
   @Override
   public void update(RenderProperties properties) {
+    if (radius > 0) {
+      radius = Math.max(0, radius - shrinkSpeed * properties.getDeltaTime());
+    }
     if (jump && !eventObserver.isPressing(keyBinding.getBinding(KeyBinding.JUMP))) {
       jump = false;
       cloudStep = false;
       releaseJump = true;
+    }
+
+    if (isTouchingGround()) {
+      lastHitOnGlide = -1;
     }
 
     if (!eventObserver.isPressing(keyBinding.getBinding(KeyBinding.JUMP)) && (!isTouchingGround() || glide)) {
@@ -315,20 +503,19 @@ public class Player extends GameObject implements Updatable, Collidable {
       releaseAttack = true;
     }
 
-    Utility.cls();
-    System.out.println("Attack  = " + attack);
-    System.out.println("Count   = " + attackCount);
-    System.out.println("Release = " + releaseAttack);
+    if (attack) {
+      int index = Math.min(7, (int) ((properties.getFrameCount() - startAttackFrame) / 1));
+
+      if (index >= 7) {
+        index = 6;
+        finishedAttack = true;
+        attack = false;
+      }
+    }
 
     PlayerState to = PlayerIdleState.load(this);
 
     switch (getCurrentState()) {
-    case Attack:
-      to = PlayerAttackState.load(this);
-      break;
-    case AttackDuck:
-      to = PlayerAttackDuckState.load(this);
-      break;
     case AttackGlide:
       to = PlayerAttackGlideState.load(this);
       break;
@@ -350,14 +537,52 @@ public class Player extends GameObject implements Updatable, Collidable {
     case Walk:
       to = PlayerWalkState.load(this);
       break;
+    case AttackMidAir:
+      to = PlayerAttackMidAir.load(this);
+      break;
+    case Attack:
+      to = PlayerAttackState.load(this);
     case Idle:
     default:
-      if (velocity.getX() != 0) {
-        velocity.setX(0);
-      }
+      velocity = Vector2.ZERO();
       break;
     }
     handlePositioning(state, to);
+
+    if (eventObserver.isPressing(keyBinding.getBinding(KeyBinding.SHURIKEN))) {
+      if (!glide && shuriken > 0 && releaseShuriken) {
+        Shuriken s = pool.deploy(this);
+        shuriken--;
+        if (startRecharge == -1) {
+          startRecharge = getOwner().getTimeSpent();
+        }
+        releaseShuriken = false;
+      }
+    } else {
+      releaseShuriken = true;
+    }
+
+    if (startRecharge != -1 && getOwner().getTimeSpent() - startRecharge >= 10_000) {
+      shuriken++;
+      if (shuriken == 5) {
+        startRecharge = -1;
+      } else {
+        startRecharge += 10_000;
+      }
+    }
+
+    if (eventObserver.isPressing(keyBinding.getBinding(KeyBinding.TELEPORT))) {
+      if (teleport && !isTouchingGround() && releaseTeleport && !glide) {
+        teleport = false;
+        releaseTeleport = false;
+        getPosition().addX(facing.getX() * teleportDistance);
+        velocity.setY(0);
+        teleportLocation = getPosition().copy().add(getSize().getX() / 2, getSize().getY() / 2);
+        radius = 25;
+      }
+    } else {
+      releaseTeleport = true;
+    }
     state = to;
     state.update(properties);
   }
@@ -396,31 +621,19 @@ public class Player extends GameObject implements Updatable, Collidable {
   }
 
   private void topFromBottom() {
-    double oldHeight = getSize().getY();
     setSize(SIZE.getX(), Player.SIZE.getY() / 2);
-    double newHeight = getSize().getY();
-    getPosition().addY(newHeight - oldHeight);
   }
 
   private void bottomFromTop() {
-    double oldHeight = getSize().getY();
     setSize(SIZE.getX(), Player.SIZE.getY() / 2);
-    double newHeight = getSize().getY();
-    getPosition().addY(newHeight - oldHeight); // move the player up.
   }
 
   private void fullFromTop() {
-    double oldHeight = getSize().getY();
     setSize(SIZE);
-    double newHeight = getSize().getY();
-    getPosition().addY(oldHeight - newHeight);
   }
 
   private void fullFromBottom() {
-    double oldHeight = getSize().getY();
     setSize(SIZE);
-    double newHeight = getSize().getY();
-    getPosition().addY(oldHeight - newHeight);
   }
 
   private void topFromFull() {
@@ -444,6 +657,8 @@ public class Player extends GameObject implements Updatable, Collidable {
     x = Utility.range(x, 0, GameScene.WIDTH - getSize().getX());
     y = Utility.range(y, 0, GameScene.HEIGHT - getSize().getY());
     setPosition(x, y);
+    System.out.println(x);
+    System.out.println(y);
   }
 
   public boolean collides(GameObject enemy) {

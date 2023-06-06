@@ -5,9 +5,13 @@ import app.main.controller.asset.AssetManager;
 import app.main.controller.scene.SceneController;
 import app.main.game.scene.DeveloperRoom;
 import app.main.view.DeveloperScene;
+import app.main.view.DeveloperScene2;
+import app.main.view.GamePageTemplate;
+import app.main.view.GamePageTemplate;
 import app.main.view.IntroVideo;
 import app.main.view.MainMenu;
 import app.main.view.OptionMenu;
+import app.main.view.SplashScreen;
 import app.main.view.TestScene;
 import app.utility.Utility;
 import javafx.application.Application;
@@ -63,7 +67,9 @@ public class Program extends Application {
   @Override
   public void start(Stage primaryStage) throws Exception {
     SceneController sceneController = SceneController.getInstance();
-    
+
+    System.out.println(SceneController.getScreenWidth());
+    System.out.println(SceneController.getScreenHeight());
     sceneController.bind(primaryStage, (stage) -> {
       AssetManager asset = AssetManager.getInstance();
       stage.setFullScreen(true);
@@ -72,7 +78,9 @@ public class Program extends Application {
       stage.getIcons().add(asset.findImage("icon"));
     });
     
-    sceneController.switchScene(new DeveloperScene());
+//    sceneController.switchScene(new IntroVideo());
+//    sceneController.switchScene(new OptionMenu());
+    sceneController.switchScene(new DeveloperScene2());
 
     primaryStage.show();
   }

@@ -2,6 +2,7 @@ package app.main.game.object.player.state;
 
 import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
+import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.PlayerInputState;
@@ -10,6 +11,7 @@ import app.utility.Utility;
 import app.utility.canvas.GameScene;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Vector2;
+import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
@@ -29,6 +31,7 @@ public class PlayerFallState extends PlayerState {
   private SceneEventObserver eventObserver;
   private KeyBinding keyBinding;
   private Player player;
+  private AssetManager assetManager;
 
   private PlayerFallState(Player player) {
     super(player);
@@ -36,8 +39,8 @@ public class PlayerFallState extends PlayerState {
     eventObserver = player.getEventObserver();
     keyBinding = player.getKeyBinding();
 
-    AssetManager asset = AssetManager.getInstance();
-    sprite = asset.findImage("player_fall");
+    assetManager = AssetManager.getInstance();
+    sprite = assetManager.findImage("player_fall");
     imageSize = new Vector2(60, 60);
   }
   
@@ -63,6 +66,17 @@ public class PlayerFallState extends PlayerState {
   @Override
   public void update(RenderProperties properties) {
     detectGlide();
+    
+    if(eventObserver.isPressing(keyBinding.getBinding(KeyBinding.JUMP)) && player.isReleaseJump() && player.canCloudStep()) {
+      player.setReleaseJump(false);
+      player.setCloudStep(false);
+      player.getVelocity().setY(-player.getJumpForce());
+      player.setJump(true);
+      player.setTeleport(true);
+      Platform.runLater(() -> {        
+        AudioFactory.createSfxHandler(assetManager.findAudio("sfx_jump")).playThenDestroy();
+      });
+    }
     
     // Movement X
     Vector2 direction = updatePlayerDirection();

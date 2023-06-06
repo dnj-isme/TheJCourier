@@ -29,7 +29,7 @@ public class IntroVideo extends SceneTemplate {
     
     sceneController = SceneController.getInstance();
     Media video = manager.findVideo("intro");
-    
+
     mediaPlayer = new MediaPlayer(video);
     view = new MediaView(mediaPlayer);
     view.setPreserveRatio(true);

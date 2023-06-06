@@ -6,8 +6,8 @@ import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.game.object.boss.BossPlaceholder;
 import app.main.game.object.other.DemonHiveController;
-import app.main.game.object.other.DemonHiveController.HiveTag;
 import app.main.game.object.other.Lantern;
+import app.main.game.object.other.DemonHiveController.HiveTag;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.shuriken.ShurikenPool;
 import app.main.game.object.player.swing.PlayerGlideSwing;
@@ -20,31 +20,19 @@ import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Vector2;
 import javafx.application.Platform;
 
-public class DeveloperRoom extends GameScene {
+public class SpawnRoom extends GameScene{
 
-  public DeveloperRoom() {
-    super();
-    setBorder(3);
-  }
-  
   private Player player;
   private PlayerSwing playerSwing;
   private PlayerGlideSwing playerGlideSwing;
   private ShurikenPool pool;
   private AssetManager manager;
   
-  private BossPlaceholder placeholder;
-  
-  private Lantern lantern1;
-  private Lantern lantern2;
-  
   private Vector<GameObject> enemyEntities;
-  private DemonHiveController demonHiveController;
   
   @Override
   protected void initializeGameObjects() {
     enemyEntities = new Vector<GameObject>();
-    demonHiveController = new DemonHiveController(this);
     manager = AssetManager.getInstance();
     
     addGameObject(player = Player.getInstance(this));
@@ -55,27 +43,16 @@ public class DeveloperRoom extends GameScene {
     playerGlideSwing = player.getPlayerGlideSwing();
     pool = player.getPool();
     
-    addEnemyEntity(placeholder = new BossPlaceholder(this));
-    placeholder.setPosition(200, GameScene.HEIGHT - placeholder.getSize().getY());
+//    addEnemyEntity(lantern1 = new Lantern(this));
+//    addEnemyEntity(lantern2 = new Lantern(this));
     
-    addEnemyEntity(lantern1 = new Lantern(this));
-    addEnemyEntity(lantern2 = new Lantern(this));
-    
-    lantern1.setPosition(100, GameScene.HEIGHT - placeholder.getSize().getY() - 50);
-    lantern2.setPosition(300, GameScene.HEIGHT - placeholder.getSize().getY() - 100);
-
-    demonHiveController.add(new Vector2(500, 300), HiveTag.A);
-    demonHiveController.add(new Vector2(500, 200), HiveTag.B);
-    demonHiveController.add(new Vector2(600, 300), HiveTag.C);
-    demonHiveController.add(new Vector2(600, 200), HiveTag.B);
-    
-    enemyEntities.addAll(demonHiveController.getHives());
-    super.addGameObjects(demonHiveController.getHives());
+//    lantern1.setPosition(100, GameScene.HEIGHT - placeholder.getSize().getY() - 50);
+//    lantern2.setPosition(300, GameScene.HEIGHT - placeholder.getSize().getY() - 100);
   }
   
-  private void addEnemyEntity(GameObject object) {
-    addGameObject(object);
-    enemyEntities.add(object);
+  private void addEnemyEntity(GameObject entity) {
+    addGameObject(entity);
+    enemyEntities.add(entity);
   }
   
   private long lastDone = 0;

@@ -29,7 +29,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-public class KeyBindingMenu extends BorderPane implements Component {
+public class KeyBindingComponent extends BorderPane implements Component {
   private EventHandler<ActionEvent> onBackEvent;
   private Button leftBtn;
   private Button rightBtn;
@@ -43,7 +43,7 @@ public class KeyBindingMenu extends BorderPane implements Component {
 
   AssetManager manager;
 
-  public KeyBindingMenu() {
+  public KeyBindingComponent() {
     manager = AssetManager.getInstance();
     binding = KeyBinding.getIntance();
 
@@ -74,7 +74,7 @@ public class KeyBindingMenu extends BorderPane implements Component {
     Label duckLbl = new Label("Duck");
     duckBtn = new Button(binding.getBinding(KeyBinding.DUCK).toString());
     // Jump / Select
-    Label jumpLbl = new Label("Jump/Confirm");
+    Label jumpLbl = new Label("Jump");
     jumpBtn = new Button(binding.getBinding(KeyBinding.JUMP).toString());
     // Column 2
     // Basic Attack
@@ -228,8 +228,6 @@ public class KeyBindingMenu extends BorderPane implements Component {
   }
 
   private void refreshText() {
-    binding.debug();
-    
     leftBtn.setText(binding.getBinding(KeyBinding.LEFT).toString());
     rightBtn.setText(binding.getBinding(KeyBinding.RIGHT).toString());
     duckBtn.setText(binding.getBinding(KeyBinding.DUCK).toString());
@@ -277,12 +275,12 @@ public class KeyBindingMenu extends BorderPane implements Component {
 
   private void applyKeyButton(Button button, Font font) {
     button.setFont(font);
-    button.setMinWidth(100);
+    button.setMinWidth(150);
   }
 
   private void applyKeyFont(Label label, Font font) {
     label.setFont(font);
-    label.setMinWidth(200);
+    label.setMinWidth(150);
     label.setTextFill(Color.WHITE);
   }
 }

@@ -13,34 +13,32 @@ import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
-public class PlayerAttackState extends PlayerState {
+public class PlayerAttackMidAir extends PlayerState {
 
-  private static PlayerAttackState instance;
+  private static PlayerAttackMidAir instance;
 
-  private Image sprite1;
-  private Image sprite2;
+  private Image sprite;
   private Vector2 imageSize;
   private SceneEventObserver eventObserver;
   private KeyBinding keyBinding;
   private Player player;
   private AssetManager assetManager;
 
-  public static PlayerAttackState load(Player player) {
+  public static PlayerAttackMidAir load(Player player) {
     if (instance == null) {
-      instance = new PlayerAttackState(player);
+      instance = new PlayerAttackMidAir(player);
     }
     return instance;
   }
 
-  private PlayerAttackState(Player player) {
+  private PlayerAttackMidAir(Player player) {
     super(player);
     this.player = player;
     eventObserver = player.getEventObserver();
     keyBinding = player.getKeyBinding();
-
     assetManager = AssetManager.getInstance();
-    sprite1 = assetManager.findImage("player_attack_1");
-    sprite2 = assetManager.findImage("player_attack_2");
+    
+    sprite = assetManager.findImage("player_attack_airborne");
     imageSize = new Vector2(80, 60);
     player.setStartAttackFrame(-1);
   }
@@ -51,16 +49,15 @@ public class PlayerAttackState extends PlayerState {
   public void render(RenderProperties properties) {
     int index = 7;
     Vector2 renderPos = Vector2.renderBottomCenter(player.getPosition(), player.getSize(), imageSize);
-    Image sprite = player.getAttackCount() % 2 == 0 ? sprite1 : sprite2;
     GraphicsContext context = properties.getContext();
     if (player.getStartAttackFrame() != -1) {
-      index = Math.min(7, (int) ((properties.getFrameCount() - player.getStartAttackFrame()) / cd));      
+      index = Math.min(7, (int) ((properties.getFrameCount() - player.getStartAttackFrame()) / cd));
     }
-    if(index >= 8) {
+    if (index >= 8) {
       index = 7;
       player.setFinishedAttack(true);
     }
-      
+
     double spriteX = index * imageSize.getX();
 
     Vector2 facing = player.getFacing();
@@ -74,6 +71,11 @@ public class PlayerAttackState extends PlayerState {
 
   @Override
   public void update(RenderProperties properties) {
+    // TODO Auto-generated method stub
+    Vector2 direction = updatePlayerDirection();
+    double movement = direction.getX() * player.getMoveSpeed();
+    player.getVelocity().setX(movement);
+    
     if (player.getStartAttackFrame() == -1) {
       player.setStartAttackFrame(properties.getFrameCount());
       player.addAttackCount();
@@ -90,11 +92,26 @@ public class PlayerAttackState extends PlayerState {
       player.setStartAttackFrame(-1);
       player.setState(this, PlayerIdleState.load(player));
     }
+    
+    if(eventObserver.isPressing(keyBinding.getBinding(KeyBinding.JUMP)) && player.canCloudStep() && player.isReleaseJump()) {
+      // Condition 2: Player can jump again if cloud step is active
+      player.setReleaseJump(false);
+      player.setCloudStep(false);
+      player.getVelocity().setY(-player.getJumpForce());
+      player.setJump(true);
+      player.setTeleport(true);
+      player.setFinishedAttack(false);
+      player.setAttack(false);
+      player.setStartAttackFrame(-1);
+      player.setState(this, PlayerJumpState.load(player));
+      Platform.runLater(() -> {        
+        AudioFactory.createSfxHandler(assetManager.findAudio("sfx_jump")).playThenDestroy();
+      });
+    }
   }
 
   @Override
   public void fixedUpdate(RenderProperties properties) {
-    // TODO Auto-generated method stub
-
+    handleGravity(properties.getFixedDeltaTime(), player.getGravity());
   }
 }

@@ -51,7 +51,7 @@ public final class AssetManager {
   public boolean isLoaded() {
     return loaded;
   }
-  
+
   private void loadImages() {
     // TODO: This function is used to load picture assets
     Utility.debug("Loading Images");
@@ -63,22 +63,38 @@ public final class AssetManager {
     imageCollection.put("main_menu", loadImage("assets/sprite/main_menu.png"));
     imageCollection.put("item", loadImage("assets/sprite/item.png"));
     imageCollection.put("frame", loadImage("assets/sprite/frame.png"));
-    
+
     // Developer Room Section
     imageCollection.put("boss_placeholder", loadImage("assets/sprite/boss_placeholder.png"));
-    
+
     // Player Section
+    imageCollection.put("player_cloudstep", loadImage("assets/sprite/player/player_cloudstep.png"));
     imageCollection.put("player_idle", loadImage("assets/sprite/player/player_idle.png"));
     imageCollection.put("player_walk_top", loadImage("assets/sprite/player/player_walk_top.png"));
     imageCollection.put("player_walk_bottom", loadImage("assets/sprite/player/player_walk_bottom.png"));
     imageCollection.put("player_fall", loadImage("assets/sprite/player/player_fall.png"));
     imageCollection.put("player_jump", loadImage("assets/sprite/player/player_jump.png"));
     imageCollection.put("player_duck", loadImage("assets/sprite/player/player_duck.png"));
-    imageCollection.put("player_glider_attack", loadImage("assets/sprite/player/player_glider_attack.png"));
     imageCollection.put("player_glider", loadImage("assets/sprite/player/player_glider.png"));
+    imageCollection.put("player_glider_attack", loadImage("assets/sprite/player/player_glider_attack.png"));
     imageCollection.put("player_attack_1", loadImage("assets/sprite/player/player_attack_1.png"));
     imageCollection.put("player_attack_2", loadImage("assets/sprite/player/player_attack_2.png"));
-    
+    imageCollection.put("player_swing", loadImage("assets/sprite/player/player_swing.png"));
+    imageCollection.put("player_swing_bottom", loadImage("assets/sprite/player/player_swing_bottom.png"));
+    imageCollection.put("player_walk_attack", loadImage("assets/sprite/player/player_walk_attack.png"));
+    imageCollection.put("player_attack_airborne", loadImage("assets/sprite/player/player_attack_airborne.png"));
+    imageCollection.put("player_shuriken", loadImage("assets/sprite/player/shuriken.png"));
+
+    // Player UI
+    imageCollection.put("health_filled", loadImage("assets/sprite/ui/health_filled.png"));
+    imageCollection.put("health_empty", loadImage("assets/sprite/ui/health_empty.png"));
+    imageCollection.put("shuriken_filled", loadImage("assets/sprite/ui/shuriken_filled.png"));
+    imageCollection.put("shuriken_empty", loadImage("assets/sprite/ui/shuriken_empty.png"));
+
+    // Other Object Section
+    imageCollection.put("lantern", loadImage("assets/sprite/scene/lantern.png"));
+    imageCollection.put("demon_hive", loadImage("assets/sprite/scene/DemonHives.png"));
+
     // [END]
 
     Utility.debug("Finished Loading Images");
@@ -115,6 +131,10 @@ public final class AssetManager {
     audioCollection.put("sfx_sword_1", loadAudio("assets/audio/sfx/swordswing1.wav"));
     audioCollection.put("sfx_sword_2", loadAudio("assets/audio/sfx/swordswing2.wav"));
     audioCollection.put("sfx_sword_3", loadAudio("assets/audio/sfx/swordswing3.wav"));
+    
+    audioCollection.put("sfx_swordhit_3", loadAudio("assets/audio/sfx/swordhit3.wav"));
+    audioCollection.put("sfx_swordhit_2", loadAudio("assets/audio/sfx/swordhit2.wav"));
+    audioCollection.put("sfx_swordhit_1", loadAudio("assets/audio/sfx/swordhit1.wav"));
 
     // Player Rope Dart
     audioCollection.put("sfx_rope_dart_ready", loadAudio("assets/audio/sfx/GraplouReady.wav"));
@@ -141,10 +161,14 @@ public final class AssetManager {
   }
 
   private Media loadAudio(String path) {
-    return new Media(new File(path).toURI().toString());
+    Media output = new Media(new File(path).toURI().toString());
+    return output;
   }
 
   private Image loadImage(String path) {
-    return new Image(new File(path).toURI().toString());
+    Image i = new Image(new File(path).toURI().toString());
+    if (i.getException() != null)
+      i.getException().printStackTrace();
+    return i;
   }
 }

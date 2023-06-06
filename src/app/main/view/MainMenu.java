@@ -2,11 +2,13 @@ package app.main.view;
 
 import java.util.TimerTask;
 
+import app.main.controller.GameController;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.asset.FontManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
+import app.main.game.scene.SpawnRoom;
 import app.main.view.component.Copyright;
 import app.main.view.component.TopLogo;
 import app.utility.SceneTemplate;
@@ -125,7 +127,8 @@ public class MainMenu extends SceneTemplate {
       if(!pressSomething) {        
         AudioFactory.createSfxHandler(manager.findAudio("sfx_game_start")).playThenDestroy();
         pressSomething = true;
-        controller.switchScene(new GamePage(), 500);
+        SceneTemplate target = GameController.getInstance().isDebug() ? new DeveloperScene() : new SpawnScene();
+        controller.switchScene(target, 500);
       }
     });
 

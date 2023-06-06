@@ -28,13 +28,16 @@ import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-public class Option extends BorderPane implements Component {
+public class OptionComponent extends BorderPane implements Component {
     private EventHandler<ActionEvent> onBackEvent;
     private EventHandler<ActionEvent> onControlEvent;
 
-    public Option() {
-        AssetManager asset = AssetManager.getInstance();
-        GameController gameController = GameController.getInstance();
+    private AssetManager asset;
+    private GameController gameController;
+    
+    public OptionComponent() {
+        asset = AssetManager.getInstance();
+        gameController = GameController.getInstance();
 
         Font fontTitle = FontManager.loadFont(28);
         Font fontText = FontManager.loadFont(18);
@@ -53,15 +56,16 @@ public class Option extends BorderPane implements Component {
 
         // Music Option
         Label musicLbl = new Label("Music");
-        CustomSlider musicSlider = new CustomSlider(10, 8, 20);
+        CustomSlider musicSlider = new CustomSlider(gameController.getMusic(), 8, 20);
 
         // SFX Option
         Label sfxLbl = new Label("Sound FX");
-        CustomSlider sfxSlider = new CustomSlider(10, 8, 20);
+        CustomSlider sfxSlider = new CustomSlider(gameController.getSfx(), 8, 20);
 
         // Show Timer
         Label showTimeLbl = new Label("Show Timer");
         CheckBox showTimeCB = new CheckBox();
+        showTimeCB.setSelected(gameController.isShowTimer());
 
         HBox buttons = new HBox();
         Button backBtn = new Button("[   Back   ]");
@@ -124,6 +128,7 @@ public class Option extends BorderPane implements Component {
 
         showTimeCB.setOnAction((e) -> {
             AudioFactory.createSfxHandler(asset.findAudio("sfx_menu_cursor_8")).playThenDestroy();
+            gameController.setShowTimer(showTimeCB.isSelected());
         });
 
         sfxSlider.setOnValueChanged((oldVal, newVal) -> {

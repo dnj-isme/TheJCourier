@@ -1,16 +1,18 @@
 package app.utility.canvas;
 
+import java.sql.Time;
 import java.util.Collection;
 import java.util.Vector;
 
 import app.main.controller.GameController;
 import app.main.controller.scene.SceneController;
+import app.utility.Utility;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public abstract class GameScene {
+public abstract class GameSceneBackup {
   private Vector<GameObject> gameObjects;
   private Canvas canvas;
   private GraphicsContext context;
@@ -26,21 +28,25 @@ public abstract class GameScene {
   private double fixedDeltaTime;
 
   private long frameCount;
-  private double firstPauseTime;
-  private double accumulatedPauseTime;
-  private boolean pauseFlag;
-  
+
+  private boolean sorted;
+
+  // Pause Properties
+  private boolean paused;
+  private double pauseStartTime;
+  private double totalPauseDuration;
+  private double current;
+
   public static final double WIDTH = 640;
   public static final double HEIGHT = 360;
 
-  public GameScene() {
+  public GameSceneBackup() {
     controller = GameController.getInstance();
-    firstPauseTime = 0;
-    accumulatedPauseTime = 0;
-    pauseFlag = false;
 
     gameObjects = new Vector<>();
     canvas = new Canvas(WIDTH, HEIGHT);
+
+    sorted = false;
 
     double windowHeight = SceneController.getScreenHeight();
     double windowWidth = SceneController.getScreenWidth();
@@ -56,7 +62,9 @@ public abstract class GameScene {
     context = canvas.getGraphicsContext2D();
     context.setImageSmoothing(false);
     frameCount = 0;
-    stopped =false;
+    paused = false;
+    pauseStartTime = 0;
+    totalPauseDuration = 0;
 
     animationTimer = new AnimationTimer() {
       @Override
@@ -69,14 +77,33 @@ public abstract class GameScene {
 
     setFps(controller.getFPS());
     initializeGameObjects();
+    sortGameObjects();
   }
-  
-  public void reset() {
 
+  public boolean isPaused() {
+    return paused;
   }
 
   public Vector2 getCanvasSize() {
     return new Vector2(canvas.getWidth(), canvas.getHeight());
+  }
+
+  public void addGameObject(GameObject object) {
+    sorted = false;
+    synchronized (gameObjects) {
+      gameObjects.add(object);
+    }
+  }
+
+  public void addGameObjects(Collection<? extends GameObject> objects) {
+    sorted = false;
+    synchronized (gameObjects) {
+      gameObjects.addAll(objects);
+    }
+  }
+
+  public boolean isSorted() {
+    return sorted;
   }
 
   public boolean isCollidingWall(GameObject obj) {
@@ -101,37 +128,35 @@ public abstract class GameScene {
   protected abstract void initializeGameObjects();
 
   boolean first = true;
-  private boolean paused;
-  private double current;
-  private boolean stopped;
 
   private void refreshFrame(long now) {
-    if(stopped) return;
     
     if(startFrameTime <= 0) {
       startFrameTime = now / 1_000_000_000.0;
     }
-
+    
+//    if(pauseStartTime > 0) {
+//      totalPauseDuration = current - pauseStartTime;
+//      pauseStartTime = 0;
+//    }
+    
     current = (now / 1_000_000_000.0) - startFrameTime;
-    
-    if(pauseFlag) {
-      lastFrameTime = current;
-      pauseFlag = false;
-      accumulatedPauseTime += (current - firstPauseTime);
-      System.out.println(current);
-      System.out.println(firstPauseTime);
-      System.out.println(current - firstPauseTime);
-      return;
-    }
-    
     double deltaTime = current - lastFrameTime;
     
-    if (deltaTime < fixedDeltaTime) {
-      return;
-    }
-    
+//    Utility.cls();
+//    System.out.println("Running");
+//    System.out.println("Start = " + startFrameTime);
+//    System.out.println("Curr  = " + current);
+//    System.out.println("");
+//    System.out.println("Pause");
+//    System.out.println("Total = " + totalPauseDuration);
+//    System.out.println("");
+//    System.out.println("Summary");
+//    System.out.println("Total Running App : " + current);
+//    System.out.println("With paused : " + (current - startFrameTime - totalPauseDuration));
+
     performGameLogic(new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount));
-    
+
     double timeSinceLastFixedUpdate = current - lastFrameTime;
     while (timeSinceLastFixedUpdate >= fixedDeltaTime) {
       notifyFixedUpdate(deltaTime);
@@ -145,19 +170,23 @@ public abstract class GameScene {
     lastFrameTime = current;
     frameCount++;
   }
-  
+
   public long getTimeSpent() {
-    return (long) (current - accumulatedPauseTime) * 1000;
-  }
-  
-  public boolean isPaused() {
-    return paused;
+    return (long) ((current - totalPauseDuration) * 1000);
   }
 
   public String getTimeSpentFormat() {
-    long time = (long) ((current - accumulatedPauseTime) * 1000);
-    long min = time / 60000;
-    long sec = time / 1000;
+    long time = (long) ((current - totalPauseDuration) * 1000);
+    long min = time / (60000);
+    long sec = (time / 1000) % 60;
+    long ms = time % 1000;
+    return String.format("%02d:%02d.%03d", min, sec, ms);
+  }
+
+  public String getTimePausedFormat() {
+    long time = (long) (totalPauseDuration * 1000);
+    long min = time / (60000);
+    long sec = (time / 1000) % 60;
     long ms = time % 1000;
     return String.format("%02d:%02d.%03d", min, sec, ms);
   }
@@ -213,29 +242,35 @@ public abstract class GameScene {
     animationTimer.start();
   }
 
-  public void stop() {
-    animationTimer.stop();
-    stopped = true;
-  }
-  
   public void pause() {
-    if(!paused) {
+    if (!paused) {
+      pauseStartTime = current;
+      paused = true;
       animationTimer.stop();
-      firstPauseTime = current;
-      paused = true;      
-    }
-  }
-  
-  public void resume() {
-    if(paused) {
-      animationTimer.start();
-      paused = false;
-      pauseFlag = true;
     }
   }
 
-  public Vector<GameObject> getGameObjects() {
-    return gameObjects;
+  public void resume() {
+    if (paused) {
+      paused = false;
+      animationTimer.start();
+    }
+  }
+
+  public void stop() {
+    animationTimer.stop();
+  }
+
+  public GameObject[] getGameObjects() {
+    if (!sorted) {
+      sortGameObjects();
+    }
+    return gameObjects.toArray(new GameObject[0]);
+  }
+
+  public void sortGameObjects() {
+    sorted = true;
+    gameObjects.sort((a, b) -> a.compareTo(b));
   }
 
   public Canvas getCanvas() {
@@ -244,13 +279,5 @@ public abstract class GameScene {
 
   public GraphicsContext getContext() {
     return context;
-  }
-
-  public void addGameObject(GameObject object) {
-    gameObjects.add(object);
-  }
-
-  public void addGameObjects(Collection<? extends GameObject> objects) {
-    gameObjects.addAll(objects);
   }
 }

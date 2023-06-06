@@ -22,7 +22,7 @@ public class InfamousBolaPantul extends GameScene{
     bola.setPosition(4, 4);
     bola.setSize(50, 50);
     bola.setSpeed(500);
-    getGameObjects().add(bola);
+    addGameObject(bola);
   }
 
   @Override

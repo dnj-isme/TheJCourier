@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import app.utility.SceneTemplate;
+import app.utility.Utility;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 
@@ -27,13 +28,13 @@ public class SceneEventObserver {
   public void start(Scene scene) {
     scene.setOnKeyPressed((e) -> {
       pressStatus.put(e.getCode(), true);
-      
+      Utility.debug(e.getCode().toString() + " is pressed!");
       notifyTarget();
       e.consume();
     });
     scene.setOnKeyReleased((e) -> {
       pressStatus.put(e.getCode(), false);
-       
+      Utility.debug(e.getCode().toString() + " is released!");
       notifyTarget(); 
       e.consume();  
     }); 
@@ -60,5 +61,10 @@ public class SceneEventObserver {
   
   public void removeAll() {
     observants.clear();
+  }
+
+  public void setPressing(KeyCode binding, boolean pressed) {
+    pressStatus.put(binding, pressed);
+    notifyTarget();
   }
 }

@@ -4,8 +4,8 @@ import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
-import app.main.view.component.KeyBindingMenu;
-import app.main.view.component.Option;
+import app.main.view.component.KeyBindingComponent;
+import app.main.view.component.OptionComponent;
 import app.utility.SceneTemplate;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -23,8 +23,8 @@ public class OptionMenu extends SceneTemplate {
 
   private BorderPane center;
   
-  private Option option;
-  private KeyBindingMenu keyBinding;
+  private OptionComponent option;
+  private KeyBindingComponent keyBinding;
 
   @Override
   public Node initComponents() {
@@ -33,8 +33,8 @@ public class OptionMenu extends SceneTemplate {
 
     center = new BorderPane();
     
-    option = new Option();
-    keyBinding = new KeyBindingMenu();
+    option = new OptionComponent();
+    keyBinding = new KeyBindingComponent();
     
     option.setOnBackEvent(this::navigateBack);
     option.setOnControlEvent(this::navigateControl);
@@ -42,7 +42,6 @@ public class OptionMenu extends SceneTemplate {
     keyBinding.setOnBackEvent(this::navigateToOption);
     
     center.setCenter(option);
-//    center.setCenter(keyBinding);
 
     return center;
   }

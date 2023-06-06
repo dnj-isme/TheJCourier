@@ -1,5 +1,6 @@
 package app.main.view;
 
+
 import java.util.TimerTask;
 
 import app.main.controller.KeyBinding;
@@ -9,7 +10,6 @@ import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.player.shuriken.ShurikenPool;
 import app.main.game.scene.DeveloperRoom;
-import app.main.game.scene.SpawnRoom;
 import app.main.view.component.KeyBindingComponent;
 import app.main.view.component.OptionComponent;
 import app.main.view.component.PauseComponent;
@@ -25,25 +25,33 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
-public class DeveloperScene extends SceneTemplate{
+
+public abstract class GamePageTemplate extends SceneTemplate{
   private StackPane base;
-  private GameScene gameScene;
+  private GameScene dev;
   private KeyBinding keyBinding;
   private AssetManager manager;
   
   private PauseComponent pauseComponent;
   private OptionComponent optionComponent;
   private KeyBindingComponent keyBindingComponent;
+  public GamePageTemplate(GameScene scene) {
+    super();
+    startGame(scene);
+  }
   
+  private void startGame(GameScene scene) {
+    dev = scene;
+    BorderPane.setAlignment(dev.getCanvas(), Pos.CENTER);
+    base.getChildren().add(dev.getCanvas());
+    dev.start();
+  }
+
   @Override
   public Node initComponents() {
     base = new StackPane();
     manager = AssetManager.getInstance();
     keyBinding = KeyBinding.getIntance();
-    gameScene = new DeveloperRoom();
-    BorderPane.setAlignment(gameScene.getCanvas(), Pos.CENTER);
-    base.getChildren().add(gameScene.getCanvas());
-    gameScene.start();
     
     pauseComponent = new PauseComponent();
     optionComponent = new OptionComponent();
@@ -51,7 +59,6 @@ public class DeveloperScene extends SceneTemplate{
     
     return base;
   }
-  
 
   @Override
   public void initStyle() {
@@ -65,7 +72,7 @@ public class DeveloperScene extends SceneTemplate{
     pauseComponent.setOnBackEvent((e) -> {
       AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_select_8")).playThenDestroy();
       base.getChildren().remove(pauseComponent);
-      gameScene.resume();
+      dev.resume();
       SceneController.getInstance().getScene();
     });
     pauseComponent.setOnOptionsEvent((e) -> {
@@ -77,8 +84,8 @@ public class DeveloperScene extends SceneTemplate{
     pauseComponent.setOnTitleEvent((e) -> {
       AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_select_8")).playThenDestroy();
       SceneController.getInstance().switchScene(new MainMenu());
-      gameScene.stop();
-      gameScene.reset();
+      dev.stop();
+      dev.reset();
     });
         
     optionComponent.setOnBackEvent((e) -> {
@@ -102,18 +109,13 @@ public class DeveloperScene extends SceneTemplate{
   
   @Override
   public void handleSceneKeyChanges(SceneEventObserver sceneEventObserver) {
-    if(sceneEventObserver.isPressing(keyBinding.getBinding(KeyBinding.PAUSE)) && !gameScene.isPaused()) {
+    if(sceneEventObserver.isPressing(keyBinding.getBinding(KeyBinding.PAUSE)) && !dev.isPaused()) {
       System.out.println("Hello World");
       sceneEventObserver.setPressing(keyBinding.getBinding(KeyBinding.PAUSE), false);
-      gameScene.pause();
+      dev.pause();
       AudioFactory.createSfxHandler(AssetManager.getInstance().findAudio("sfx_pause")).playThenDestroy();
       base.getChildren().add(pauseComponent);
       pauseComponent.requestFocus();
-    }
-    if(sceneEventObserver.isPressing(KeyCode.G)) {
-      SceneController.getInstance().switchScene(new SpawnScene());
-      gameScene.stop();
-      gameScene.reset();
     }
   }
 }

@@ -1,6 +1,8 @@
 package app.utility.canvas;
 
-public abstract class GameObject implements Drawable, Cloneable{
+import java.util.Comparator;
+
+public abstract class GameObject implements Drawable, Comparable<GameObject>{
   private Vector2 position;
   private Vector2 size;
   private ObjectLayer layer;
@@ -48,5 +50,15 @@ public abstract class GameObject implements Drawable, Cloneable{
     this.position = Vector2.ZERO();
     this.size = Vector2.ZERO();
     this.owner = owner;
+  }
+  
+  protected void setOwner(GameScene owner) {
+    this.owner = owner;
+  }
+  
+  @Override
+  public int compareTo(GameObject other) {
+    Comparator<ObjectLayer> layerComparator = Comparator.comparing(ObjectLayer::getIndex);
+    return layerComparator.compare(this.getLayer(), other.getLayer());
   }
 }

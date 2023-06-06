@@ -43,14 +43,14 @@ public class PlayerWalkState extends PlayerState {
     imageSize = new Vector2(60, 60);
   }
 
-  private int cd = 2;
+  private double cd = 2;
 
   @Override
   public void render(RenderProperties properties) {
     GraphicsContext context = properties.getContext();
     Vector2 renderPos = Vector2.renderBottomCenter(player.getPosition(), player.getSize(), imageSize);
 
-    int ticks = (int) properties.getFrameCount() / cd;
+    int ticks = (int) (properties.getFrameCount() / cd);
     int x = ticks % 8 * 60;
     
     Vector2 facing = updatePlayerDirection();
@@ -67,6 +67,12 @@ public class PlayerWalkState extends PlayerState {
     Vector2 direction = updatePlayerDirection();
     double movement = direction.getX() * player.getMoveSpeed();
     player.getVelocity().setX(movement);
+
+    if(eventObserver.isPressing(keyBinding.getBinding(KeyBinding.ATTACK)) && player.isReleaseAttack()) {
+      player.setAttack(true);
+      player.setStartAttackFrame(properties.getFrameCount());
+      player.setState(this, PlayerAttackWalkState.load(player));
+    }
   }
 
   @Override

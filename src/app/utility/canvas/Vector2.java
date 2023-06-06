@@ -105,9 +105,17 @@ public class Vector2 {
   public Vector2 add(Vector2 a) {
     return add(this, a);
   }
+  
+  public Vector2 add(double x, double y) {
+    return add(this, new Vector2(x, y));
+  }
 
   public Vector2 subs(Vector2 a) {
     return subs(this, a);
+  }
+  
+  public Vector2 subs(double x, double y) {
+    return subs(this, new Vector2(x, y));
   }
 
   public Vector2 mult(double a) {
@@ -136,6 +144,10 @@ public class Vector2 {
       this.x = 0;
       this.y = 0;
     }
+  }
+  
+  public Vector2 copy() {
+    return new Vector2(x, y);
   }
 
   public static Vector2 ONE() {
@@ -219,5 +231,9 @@ public class Vector2 {
     }
     Vector2 compare = (Vector2) obj;
     return compare.getX() == x && compare.getY() == y;
+  }
+
+  public static Vector2 square(double length) {
+    return new Vector2(length, length);
   }
 }

@@ -23,6 +23,16 @@ public final class GameController {
   private int sfx = 10;
   private double FPS = 60;
   
+  private boolean showTimer = true;
+  
+  public boolean isShowTimer() {
+    return showTimer;
+  }
+
+  public void setShowTimer(boolean showTimer) {
+    this.showTimer = showTimer;
+  }
+
   public boolean isDebug() {
     return debug;
   }

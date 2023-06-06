@@ -42,7 +42,7 @@ public class PlayerDuckState extends PlayerState {
 
   
   // Index = 1 x 3
-  private int cd = 2;
+  private double cd = 2;
   
   @Override
   public void render(RenderProperties properties) {
@@ -51,7 +51,7 @@ public class PlayerDuckState extends PlayerState {
       GraphicsContext context = properties.getContext();
       Vector2 renderPos = Vector2.renderBottomCenter(player.getPosition(), player.getSize(), imageSize);
       
-      int index = 2 - Math.min(2, (int) (properties.getFrameCount() - duckFrameStarted) / cd);
+      int index = (int) (2 - Math.min(2, properties.getFrameCount() - duckFrameStarted) / cd);
 
       int spriteX = index * 60;
       
@@ -60,7 +60,7 @@ public class PlayerDuckState extends PlayerState {
         renderPos.setX(renderPos.getX() + 60);
       }
       
-      context.drawImage(sprite, spriteX, 0, 60, 60, renderPos.getX(), renderPos.getY(), 60 * facing.getX(), 60);
+      context.drawImage(sprite, spriteX, 0, imageSize.getX(), 60, renderPos.getX(), renderPos.getY(), 60 * facing.getX(), 60);
     }
   }
   

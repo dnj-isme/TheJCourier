@@ -58,6 +58,8 @@ public final class KeyBinding {
   }
   
   public void setBinding(int keyCode, KeyCode key) {
+    if(!validKey(key)) return;
+    
     int idx = list.indexOf(key);
     if(idx == -1 && !list.contains(key)) {
       list.set(keyCode, key);
@@ -70,10 +72,14 @@ public final class KeyBinding {
       Utility.debug("Found");
     }
   }
-  
-  public void debug() {
-    for (int i = 0; i < list.size(); i++) {
-      System.out.println(list.get(i).toString());
-    }
+
+  private boolean validKey(KeyCode key) {
+    return key.isLetterKey() || 
+        key.isArrowKey() || 
+        key.isWhitespaceKey() || 
+        key.equals(KeyCode.ALT) ||
+        key.equals(KeyCode.CONTROL) || 
+        key.equals(KeyCode.SHIFT) ||
+        key.isDigitKey();
   }
 }
