@@ -91,7 +91,6 @@ public class PlayerAttackGlideState extends PlayerState {
       player.addAttackCount();
       player.setAttack(true);
       player.setReleaseAttack(false);
-      player.setCloudStep(true);
       Platform.runLater(() -> {
         AudioFactory.createSfxHandler(assetManager.findAudio("sfx_sword_" + Utility.random(1, 3))).playThenDestroy();
       });

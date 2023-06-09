@@ -8,6 +8,7 @@ import app.utility.canvas.Collidable;
 import app.utility.canvas.GameObject;
 import app.utility.canvas.GameScene;
 import app.utility.canvas.ObjectLayer;
+import app.utility.canvas.ObjectTag;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Updatable;
 import app.utility.canvas.Vector2;
@@ -17,7 +18,7 @@ import javafx.scene.paint.Color;
 
 public class PlayerSwing extends GameObject implements Collidable, Updatable {
 
-  public static final Vector2 SIZE = new Vector2(40, 15);
+  public static final Vector2 SIZE = new Vector2(50, 20);
 
   // 256 x 52
   // 4 x 2
@@ -37,6 +38,7 @@ public class PlayerSwing extends GameObject implements Collidable, Updatable {
   public PlayerSwing(GameScene owner, Player player) {
     super(owner);
     setLayer(ObjectLayer.VFX);
+    setTag(ObjectTag.Player);
 
     this.player = player;
     setSize(SIZE);
@@ -58,8 +60,8 @@ public class PlayerSwing extends GameObject implements Collidable, Updatable {
   public void render(RenderProperties properties) {
     // TODO Auto-generated method stub
     GraphicsContext context = properties.getContext();
-    
-    if(controller.isHitbox()) {      
+
+    if (controller.isHitbox() && player.isAlive()) {
       context.setFill(Color.LIGHTBLUE);
       context.fillRect(getPosition().getX(), getPosition().getY(), getSize().getX(), getSize().getY());
     }

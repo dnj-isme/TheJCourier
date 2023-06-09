@@ -29,7 +29,9 @@ public abstract class GameScene {
   private double firstPauseTime;
   private double accumulatedPauseTime;
   private boolean pauseFlag;
-  
+  private boolean dead;
+  private long startDead;
+
   public static final double WIDTH = 640;
   public static final double HEIGHT = 360;
 
@@ -56,7 +58,9 @@ public abstract class GameScene {
     context = canvas.getGraphicsContext2D();
     context.setImageSmoothing(false);
     frameCount = 0;
-    stopped =false;
+    stopped = false;
+    dead = false;
+    startDead = -1;
 
     animationTimer = new AnimationTimer() {
       @Override
@@ -70,13 +74,17 @@ public abstract class GameScene {
     setFps(controller.getFPS());
     initializeGameObjects();
   }
-  
-  public void reset() {
-
-  }
 
   public Vector2 getCanvasSize() {
     return new Vector2(canvas.getWidth(), canvas.getHeight());
+  }
+
+  public boolean isDead() {
+    return dead;
+  }
+
+  public void setDead(boolean dead) {
+    this.dead = dead;
   }
 
   public boolean isCollidingWall(GameObject obj) {
@@ -104,34 +112,42 @@ public abstract class GameScene {
   private boolean paused;
   private double current;
   private boolean stopped;
+  
+  private GameObject exception;
+
+  public void setException(GameObject object) {
+    this.exception = object;
+  }
 
   private void refreshFrame(long now) {
-    if(stopped) return;
-    
-    if(startFrameTime <= 0) {
+    if (stopped)
+      return;
+
+    if (startFrameTime <= 0) {
       startFrameTime = now / 1_000_000_000.0;
     }
 
     current = (now / 1_000_000_000.0) - startFrameTime;
     
-    if(pauseFlag) {
+    if(dead && startDead == -1) {
+      startDead = (long) ((current - accumulatedPauseTime) * 1000);
+    }
+
+    if (pauseFlag) {
       lastFrameTime = current;
       pauseFlag = false;
       accumulatedPauseTime += (current - firstPauseTime);
-      System.out.println(current);
-      System.out.println(firstPauseTime);
-      System.out.println(current - firstPauseTime);
       return;
     }
-    
+
     double deltaTime = current - lastFrameTime;
-    
+
     if (deltaTime < fixedDeltaTime) {
       return;
     }
-    
+
     performGameLogic(new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount));
-    
+
     double timeSinceLastFixedUpdate = current - lastFrameTime;
     while (timeSinceLastFixedUpdate >= fixedDeltaTime) {
       notifyFixedUpdate(deltaTime);
@@ -145,19 +161,19 @@ public abstract class GameScene {
     lastFrameTime = current;
     frameCount++;
   }
-  
+
   public long getTimeSpent() {
-    return (long) (current - accumulatedPauseTime) * 1000;
+    return dead ? startDead : (long) ((current - accumulatedPauseTime) * 1000);
   }
-  
+
   public boolean isPaused() {
     return paused;
   }
 
   public String getTimeSpentFormat() {
-    long time = (long) ((current - accumulatedPauseTime) * 1000);
+    long time = dead ? startDead : (long) ((current - accumulatedPauseTime) * 1000);
     long min = time / 60000;
-    long sec = time / 1000;
+    long sec = (time / 1000) % 60;
     long ms = time % 1000;
     return String.format("%02d:%02d.%03d", min, sec, ms);
   }
@@ -165,7 +181,7 @@ public abstract class GameScene {
   private void notifyUpdate(double deltaTime) {
     RenderProperties prop = new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount);
     for (GameObject obj : gameObjects) {
-      if (obj instanceof Updatable) {
+      if (obj instanceof Updatable && (!dead || obj.equals(exception))) {
         ((Updatable) obj).update(prop);
       }
     }
@@ -174,7 +190,7 @@ public abstract class GameScene {
   private void notifyFixedUpdate(double deltaTime) {
     RenderProperties prop = new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount);
     for (GameObject obj : gameObjects) {
-      if (obj instanceof Updatable) {
+      if (obj instanceof Updatable && (!dead || obj.equals(exception))) {
         ((Updatable) obj).fixedUpdate(prop);
       }
     }
@@ -210,6 +226,7 @@ public abstract class GameScene {
   }
 
   public void start() {
+    gameObjects.sort((a, b) -> a.getLayer().getIndex() - b.getLayer().getIndex());
     animationTimer.start();
   }
 
@@ -217,17 +234,17 @@ public abstract class GameScene {
     animationTimer.stop();
     stopped = true;
   }
-  
+
   public void pause() {
-    if(!paused) {
+    if (!paused) {
       animationTimer.stop();
       firstPauseTime = current;
-      paused = true;      
+      paused = true;
     }
   }
-  
+
   public void resume() {
-    if(paused) {
+    if (paused) {
       animationTimer.start();
       paused = false;
       pauseFlag = true;

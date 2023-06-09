@@ -5,12 +5,14 @@ import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneEventObserver;
+import app.main.game.object.other.DemonHive;
 import app.main.game.object.player.Player;
 import app.utility.Utility;
 import app.utility.canvas.Collidable;
 import app.utility.canvas.GameObject;
 import app.utility.canvas.GameScene;
 import app.utility.canvas.ObjectLayer;
+import app.utility.canvas.ObjectTag;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Updatable;
 import app.utility.canvas.Vector2;
@@ -39,6 +41,7 @@ public class Shuriken extends GameObject implements Collidable, Updatable {
     initialized = false;
     setSize(SIZE);
     setLayer(ObjectLayer.VFX);
+    setTag(ObjectTag.Player);
 
     asset = AssetManager.getInstance();
     sprite = asset.findImage("player_shuriken");
@@ -67,9 +70,7 @@ public class Shuriken extends GameObject implements Collidable, Updatable {
   public void initialize(Player player) {
     direction = player.getFacing().copy();
     setPosition(player.getPosition().copy());
-    if (direction.equals(Vector2.LEFT())) {
-      getPosition().subsX(player.getSize().getX() + SIZE.getX());
-    }
+    getPosition().addX(player.getFacing().equals(Vector2.LEFT()) ? -SIZE.getX() : player.getSize().getX());
 
     initialized = true;
   }
@@ -79,7 +80,6 @@ public class Shuriken extends GameObject implements Collidable, Updatable {
       Utility.debug("Shuriken is already started");
     } else if (initialized) {
       AudioFactory.createSfxHandler(asset.findAudio("sfx_shuriken_throw")).playThenDestroy();
-      ;
       enabled = true;
     } else {
       Utility.debug("Shuriken isn't initialized yet!");
@@ -91,7 +91,6 @@ public class Shuriken extends GameObject implements Collidable, Updatable {
       Utility.debug("Shuriken isn't starting, so no need to stop it");
     } else {
       AudioFactory.createSfxHandler(asset.findAudio("sfx_shuriken_stick")).playThenDestroy();
-      ;
       enabled = false;
       initialized = false;
       setPosition(new Vector2());
@@ -142,5 +141,27 @@ public class Shuriken extends GameObject implements Collidable, Updatable {
     if (!enabled)
       return;
     getPosition().setAdd(direction.mult(speed * properties.getFixedDeltaTime()));
+  }
+
+  public boolean collides(GameObject enemy) {
+    if (enemy instanceof DemonHive && !((DemonHive) enemy).isVisible())
+      return false;
+
+    Vector2 posA = this.getPosition();
+    Vector2 sizeA = this.getSize();
+    Vector2 posB = enemy.getPosition();
+    Vector2 sizeB = enemy.getSize();
+
+    double leftA = posA.getX();
+    double rightA = posA.getX() + sizeA.getX();
+    double topA = posA.getY();
+    double bottomA = posA.getY() + sizeA.getY();
+
+    double leftB = posB.getX();
+    double rightB = posB.getX() + sizeB.getX();
+    double topB = posB.getY();
+    double bottomB = posB.getY() + sizeB.getY();
+
+    return rightA >= leftB && leftA <= rightB && bottomA >= topB && topA <= bottomB;
   }
 }

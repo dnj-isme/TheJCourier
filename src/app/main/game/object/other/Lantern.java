@@ -30,7 +30,7 @@ public class Lantern extends GameObject implements Collidable, Updatable {
     sprite = asset.findImage("lantern");
     imageSize = new Vector2(40, 40);
     setSize(SIZE);
-    setLayer(ObjectLayer.Background);
+    setLayer(ObjectLayer.Block);
     controller = GameController.getInstance();
   }
 

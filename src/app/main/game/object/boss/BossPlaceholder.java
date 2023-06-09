@@ -4,10 +4,12 @@ package app.main.game.object.boss;
 import app.main.controller.GameController;
 import app.main.controller.asset.AssetManager;
 import app.main.game.object.player.Player;
+import app.main.game.object.player.shuriken.Shuriken;
 import app.utility.canvas.Collidable;
 import app.utility.canvas.GameObject;
 import app.utility.canvas.GameScene;
 import app.utility.canvas.ObjectLayer;
+import app.utility.canvas.ObjectTag;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Vector2;
 import javafx.scene.canvas.GraphicsContext;
@@ -23,7 +25,8 @@ public class BossPlaceholder extends GameObject implements Collidable {
   public BossPlaceholder(GameScene owner) {
     super(owner);
     
-    setLayer(ObjectLayer.Background);
+    setLayer(ObjectLayer.Foreground);
+    setTag(ObjectTag.Enemy);
     setSize(30, 65);
     
     AssetManager asset = AssetManager.getInstance();
@@ -50,6 +53,10 @@ public class BossPlaceholder extends GameObject implements Collidable {
   @Override
   public void receiveCollision(GameObject object) {
     boolean receiveDamage = false;
+    
+    if(object instanceof Shuriken) {
+      receiveDamage();
+    }
     if(object instanceof Player) {
       if(playerAttackNo == -1) {
         playerAttackNo = ((Player) object).getAttackCount();
@@ -59,10 +66,13 @@ public class BossPlaceholder extends GameObject implements Collidable {
         receiveDamage = ((Player) object).getAttackCount() != playerAttackNo;
       }
     }
-    
     if(receiveDamage) {
       playerAttackNo = ((Player) object).getAttackCount();
-      System.out.println("The boss receives damage from Player");
+      receiveDamage();
     }
+  }
+  
+  private void receiveDamage() {
+    System.out.println("The boss receives damage from Player");
   }
 }

@@ -20,7 +20,7 @@ public class AudioHandler {
     player.play();
     if (loop) {
       player.setOnEndOfMedia(() -> {
-        player.seek(Duration.millis(100));
+        player.seek(Duration.millis(0));
         player.play();
       });
     }

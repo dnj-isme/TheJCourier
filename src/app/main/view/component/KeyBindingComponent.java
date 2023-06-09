@@ -35,6 +35,7 @@ public class KeyBindingComponent extends BorderPane implements Component {
   private Button rightBtn;
   private Button duckBtn;
   private Button jumpBtn;
+  private Button interactBtn;
   private Button basicBtn;
   private Button shurBtn;
   private Button tpBtn;
@@ -76,6 +77,9 @@ public class KeyBindingComponent extends BorderPane implements Component {
     // Jump / Select
     Label jumpLbl = new Label("Jump");
     jumpBtn = new Button(binding.getBinding(KeyBinding.JUMP).toString());
+    // Interact
+    Label interactLbl = new Label("Interact");
+    interactBtn = new Button(binding.getBinding(KeyBinding.INTERACT).toString());
     // Column 2
     // Basic Attack
     Label basicLbl = new Label("Attack");
@@ -113,6 +117,8 @@ public class KeyBindingComponent extends BorderPane implements Component {
     options.add(tpBtn, 4, 3);
     options.add(pauseLbl, 3, 4);
     options.add(pauseBtn, 4, 4);
+    options.add(interactLbl, 1, 5);
+    options.add(interactBtn, 2, 5);
 
     center.setBackground(
         new Background(new BackgroundImage(bigFrame, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
@@ -137,6 +143,7 @@ public class KeyBindingComponent extends BorderPane implements Component {
     applyKeyFont(shurLbl, fontKey);
     applyKeyFont(tpLbl, fontKey);
     applyKeyFont(pauseLbl, fontKey);
+    applyKeyFont(interactLbl, fontKey);
 
     applyButtonStyle(backBtn, fontText);
     applyButtonStyle(defaultBtn, fontText);
@@ -147,6 +154,7 @@ public class KeyBindingComponent extends BorderPane implements Component {
     applyKeyButton(basicBtn, fontKey);
     applyKeyButton(shurBtn, fontKey);
     applyKeyButton(tpBtn, fontKey);
+    applyKeyButton(interactBtn, fontKey);
     applyKeyButton(pauseBtn, fontKey);
 
     BorderPane.setAlignment(center, Pos.CENTER);
@@ -176,6 +184,7 @@ public class KeyBindingComponent extends BorderPane implements Component {
     shurBtn.setOnKeyPressed(this::handleKeyPressed);
     tpBtn.setOnKeyPressed(this::handleKeyPressed);
     pauseBtn.setOnKeyPressed(this::handleKeyPressed);
+    interactBtn.setOnKeyPressed(this::handleKeyPressed);
     
     leftBtn.setOnAction(this::handleAction);
     rightBtn.setOnAction(this::handleAction);
@@ -185,6 +194,7 @@ public class KeyBindingComponent extends BorderPane implements Component {
     shurBtn.setOnAction(this::handleAction);
     tpBtn.setOnAction(this::handleAction);
     pauseBtn.setOnAction(this::handleAction);
+    interactBtn.setOnAction(this::handleAction);
   }
   
   private boolean onBinding = false;
@@ -219,6 +229,8 @@ public class KeyBindingComponent extends BorderPane implements Component {
       binding.setBinding(KeyBinding.TELEPORT, changed);
     } else if (e.getSource().equals(pauseBtn)) {
       binding.setBinding(KeyBinding.PAUSE, changed);
+    } else if (e.getSource().equals(interactBtn)) {
+      binding.setBinding(KeyBinding.INTERACT, changed);
     }
     
     onBinding = false;
@@ -236,6 +248,7 @@ public class KeyBindingComponent extends BorderPane implements Component {
     shurBtn.setText(binding.getBinding(KeyBinding.SHURIKEN).toString());
     tpBtn.setText(binding.getBinding(KeyBinding.TELEPORT).toString());
     pauseBtn.setText(binding.getBinding(KeyBinding.PAUSE).toString());
+    interactBtn.setText(binding.getBinding(KeyBinding.INTERACT).toString());
   }
 
   public void setOnBackEvent(EventHandler<ActionEvent> eventHandler) {

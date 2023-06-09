@@ -4,15 +4,16 @@ import app.main.controller.GameController;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.scene.SceneController;
 import app.main.game.scene.DeveloperRoom;
-import app.main.view.DeveloperScene;
-import app.main.view.DeveloperScene2;
-import app.main.view.GamePageTemplate;
-import app.main.view.GamePageTemplate;
 import app.main.view.IntroVideo;
 import app.main.view.MainMenu;
 import app.main.view.OptionMenu;
 import app.main.view.SplashScreen;
 import app.main.view.TestScene;
+import app.main.view.YouLostMenu;
+import app.main.view.game.BossScene;
+import app.main.view.game.DeveloperScene;
+import app.main.view.game.GamePageTemplate;
+import app.main.view.game.SpawnScene;
 import app.utility.Utility;
 import javafx.application.Application;
 import javafx.scene.input.KeyCombination;
@@ -77,10 +78,10 @@ public class Program extends Application {
       stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
       stage.getIcons().add(asset.findImage("icon"));
     });
-    
 //    sceneController.switchScene(new IntroVideo());
 //    sceneController.switchScene(new OptionMenu());
-    sceneController.switchScene(new DeveloperScene2());
+//    sceneController.switchScene(new DeveloperScene());
+    sceneController.switchScene(new BossScene());
 
     primaryStage.show();
   }

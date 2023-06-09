@@ -25,6 +25,7 @@ public final class KeyBinding {
     list.add(KeyCode.J);
     list.add(KeyCode.K);
     list.add(KeyCode.L);
+    list.add(KeyCode.F);
   }
   
   private KeyBinding() {
@@ -40,6 +41,7 @@ public final class KeyBinding {
   public static final int ATTACK = 5;
   public static final int SHURIKEN = 6;
   public static final int TELEPORT = 7;
+  public static final int INTERACT = 8;
   
 //  private KeyCode duck;
 //  private KeyCode left;

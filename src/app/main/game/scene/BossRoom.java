@@ -1,18 +1,26 @@
 package app.main.game.scene;
 
+import java.util.TimerTask;
 import java.util.Vector;
 
+import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
+import app.main.controller.scene.SceneController;
+import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.boss.BossPlaceholder;
+import app.main.game.object.other.Background;
 import app.main.game.object.other.DemonHiveController;
-import app.main.game.object.other.DemonHiveController.HiveTag;
+import app.main.game.object.other.FloorTile;
+import app.main.game.object.other.Gate;
 import app.main.game.object.other.Lantern;
+import app.main.game.object.other.DemonHiveController.HiveTag;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.shuriken.Shuriken;
 import app.main.game.object.player.shuriken.ShurikenPool;
 import app.main.game.object.player.swing.PlayerGlideSwing;
 import app.main.game.object.player.swing.PlayerSwing;
+import app.main.view.game.BossScene;
 import app.utility.Utility;
 import app.utility.canvas.Collidable;
 import app.utility.canvas.GameObject;
@@ -22,81 +30,91 @@ import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Vector2;
 import javafx.application.Platform;
 
-public class DeveloperRoom extends GameScene {
-
-  public DeveloperRoom() {
-    super();
-    setBorder(3);
-  }
-
+public class BossRoom extends GameScene {
+  
   private Player player;
   private PlayerSwing playerSwing;
   private PlayerGlideSwing playerGlideSwing;
   private ShurikenPool pool;
   private AssetManager manager;
-
-  private BossPlaceholder placeholder;
-
-  private Lantern lantern1;
-  private Lantern lantern2;
-
+  private SceneEventObserver observer;
+  private KeyBinding binding;
+  
   private Vector<GameObject> enemyEntities;
-  private DemonHiveController demonHiveController;
-
-  public Player getPlayer() {
-    return player;
+  
+  private Runnable onTransition;
+  
+  public void setOnTransition(Runnable onTransition) {
+    this.onTransition = onTransition;
   }
 
   @Override
   protected void initializeGameObjects() {
     enemyEntities = new Vector<GameObject>();
-    demonHiveController = new DemonHiveController(this);
     manager = AssetManager.getInstance();
+    observer = SceneEventObserver.getInstance();
+    binding = KeyBinding.getIntance();
 
     addGameObject(player = Player.getInstance(this));
     player.reset(this);
     player.setPosition(50, 50);
+    player.setSpawn(true);
+    player.setReverseSpawn(false);
+    player.setFreezeInput(true);
+    Utility.delayAction(2000, new TimerTask() {
+      
+      @Override
+      public void run() {
+        player.setFreezeInput(false);
+      }
+    });
 
     playerSwing = player.getPlayerSwing();
     playerGlideSwing = player.getPlayerGlideSwing();
     pool = player.getPool();
+    player.setFloorHeight(20);
+    player.setPosition(50, GameScene.HEIGHT - 20 - player.getSize().getY());
     
-    System.out.println(pool == null);
-
-    addEnemyEntity(placeholder = new BossPlaceholder(this));
-    placeholder.setPosition(200, GameScene.HEIGHT - placeholder.getSize().getY());
-
-    addEnemyEntity(lantern1 = new Lantern(this));
-    addEnemyEntity(lantern2 = new Lantern(this));
-
-    lantern1.setPosition(100, GameScene.HEIGHT - placeholder.getSize().getY() - 50);
-    lantern2.setPosition(300, GameScene.HEIGHT - placeholder.getSize().getY() - 100);
-
-    demonHiveController.add(new Vector2(500, 300), HiveTag.A);
-    demonHiveController.add(new Vector2(500, 200), HiveTag.B);
-    demonHiveController.add(new Vector2(600, 300), HiveTag.C);
-    demonHiveController.add(new Vector2(600, 200), HiveTag.B);
-
-    enemyEntities.addAll(demonHiveController.getHives());
+    addFloor();
+    addForeground();
+    addBackground();
   }
-
-  private void addEnemyEntity(GameObject object) {
-    addGameObject(object);
-    enemyEntities.add(object);
+  
+  private void addForeground() {
+    
   }
-
+  
+  private void addBackground() {
+    
+  }
+  
+  private void addFloor() {
+    int y = (int) (GameScene.HEIGHT - 20);
+    for (int x = 0; x < GameScene.WIDTH; x += 20) {
+      FloorTile ins = new FloorTile(this);
+      ins.setPosition(x, y);
+      addGameObject(ins);
+    }
+  }
+  
+  private void addEnemyEntity(GameObject entity) {
+    addGameObject(entity);
+    enemyEntities.add(entity);
+  }
+  
   private long lastDone = 0;
-
+  private boolean started = false;
+  
   @Override
   public void performGameLogic(RenderProperties properties) {
-    if(!player.isAlive()) {
-      deadTrigger();
-      setException(player);
+    if(started && !player.isSpawn()) {
+      this.stop();
+      onTransition.run();
     }
     
     for (GameObject enemy : enemyEntities) {
       if (enemy instanceof Collidable) {
-        if (player.collides(enemy) && !player.isInvincible()) {
+        if (player.collides(enemy)) {
           player.receiveCollision(enemy);
         }
         if (player.isAttacking() && playerSwing.collides(enemy)) {
@@ -106,8 +124,8 @@ public class DeveloperRoom extends GameScene {
             Platform.runLater(() -> {
               AudioFactory.createSfxHandler(manager.findAudio("sfx_swordhit_" + Utility.random(1, 3)))
                   .playThenDestroy();
+              lastDone = player.getAttackCount();
             });
-            lastDone = player.getAttackCount();
           }
         }
         if (player.isAttacking() && playerGlideSwing.collides(enemy)) {
@@ -118,8 +136,8 @@ public class DeveloperRoom extends GameScene {
             Platform.runLater(() -> {
               AudioFactory.createSfxHandler(manager.findAudio("sfx_swordhit_" + Utility.random(1, 3)))
                   .playThenDestroy();
+              lastDone = player.getAttackCount();
             });
-            lastDone = player.getAttackCount();
           }
         }
         for (Shuriken shuriken : pool.getAll()) {
@@ -133,9 +151,5 @@ public class DeveloperRoom extends GameScene {
         }
       }
     }
-  }
-
-  private void deadTrigger() {
-    setDead(true);
   }
 }

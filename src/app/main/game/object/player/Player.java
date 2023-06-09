@@ -11,11 +11,14 @@ import app.main.game.object.player.state.PlayerAttackGlideState;
 import app.main.game.object.player.state.PlayerAttackMidAir;
 import app.main.game.object.player.state.PlayerAttackState;
 import app.main.game.object.player.state.PlayerAttackWalkState;
+import app.main.game.object.player.state.PlayerDiedState;
 import app.main.game.object.player.state.PlayerDuckState;
 import app.main.game.object.player.state.PlayerFallState;
 import app.main.game.object.player.state.PlayerGlideState;
+import app.main.game.object.player.state.PlayerHurtState;
 import app.main.game.object.player.state.PlayerIdleState;
 import app.main.game.object.player.state.PlayerJumpState;
+import app.main.game.object.player.state.PlayerSpawnedState;
 import app.main.game.object.player.state.PlayerWalkState;
 import app.main.game.object.player.swing.PlayerGlideSwing;
 import app.main.game.object.player.swing.PlayerSwing;
@@ -24,35 +27,42 @@ import app.utility.canvas.Collidable;
 import app.utility.canvas.GameObject;
 import app.utility.canvas.GameScene;
 import app.utility.canvas.ObjectLayer;
+import app.utility.canvas.ObjectTag;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Updatable;
 import app.utility.canvas.Vector2;
+import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 
 public class Player extends GameObject implements Updatable, Collidable {
-  
+
   private static Player instance;
+
   public static Player getInstance(GameScene owner) {
-    if(instance == null) {
+    if (instance == null) {
       instance = new Player(owner);
     }
     return instance;
-}
+  }
 
   private GameController gameController;
   private PlayerState state;
   private SceneEventObserver eventObserver;
   private KeyBinding keyBinding;
-
+  private AssetManager assets;
+  
+  private double floorHeight;
+  private double ceilHeight;
+  
   // Player stats
   private int health = 8;
   private int shuriken = 5;
   private boolean glide = false;
   private int attackCount = 0;
-
+  private boolean hideTimer = false;
   private boolean firstGlide = false;
 
   // Player Movements
@@ -61,6 +71,10 @@ public class Player extends GameObject implements Updatable, Collidable {
   private boolean duck = false;
   private boolean attack = false;
   private boolean teleport = false;
+  private boolean hurt = false;
+  private boolean invincible = false;
+  private int invincibleDuration = 2000; // satuan ms (1000 ms = 1 s)
+  private long startInvincible = -1;
 
   private long startAttackFrame = -1;
   private boolean finishedAttack = false;
@@ -68,7 +82,7 @@ public class Player extends GameObject implements Updatable, Collidable {
   private long lastHitOnGlide = -1;
   private boolean glideHit = false;
 
-  private double teleportDistance = 50;
+  private double teleportDistance = 100;
   private Vector2 teleportLocation = new Vector2();
   private double radius = 0;
   private double shrinkSpeed = 40;
@@ -97,10 +111,22 @@ public class Player extends GameObject implements Updatable, Collidable {
   private PlayerSwing playerSwing;
   private PlayerGlideSwing playerGlideSwing;
   private long startRecharge = -1;
+  private boolean dead;
+  
+  private boolean spawn;
+  private boolean reverseSpawn;
+  private boolean invisible;
+  private boolean freezeInput;
+  
+  public void triggerSpawn(boolean dissapear) {
+    spawn = true;
+    reverseSpawn = dissapear;
+  }
 
   public static Vector2 SIZE = new Vector2(24, 40);
 
   public void reset(GameScene owner) {
+    setLayer(ObjectLayer.Player);
     health = 8;
     shuriken = 5;
     glide = false;
@@ -119,8 +145,12 @@ public class Player extends GameObject implements Updatable, Collidable {
     finishedAttack = false;
     lastHitOnGlide = -1;
     glideHit = false;
-    
-    
+    dead = false;
+    hideTimer = false;
+    floorHeight = 0;
+    ceilHeight = 0;
+    invisible = false;
+
     setOwner(owner);
     pool = new ShurikenPool(shuriken, owner);
     playerSwing = new PlayerSwing(owner, this);
@@ -133,12 +163,13 @@ public class Player extends GameObject implements Updatable, Collidable {
 
   public Player(GameScene owner) {
     super(owner);
-    setLayer(ObjectLayer.Block);
+    setLayer(ObjectLayer.Player);
 
     gameController = GameController.getInstance();
     eventObserver = SceneEventObserver.getInstance();
     keyBinding = KeyBinding.getIntance();
     state = PlayerIdleState.load(this);
+    assets = AssetManager.getInstance();
 
     super.setSize(SIZE);
     pool = new ShurikenPool(shuriken, getOwner());
@@ -148,6 +179,58 @@ public class Player extends GameObject implements Updatable, Collidable {
     owner.addGameObject(new PlayerUI(owner, this));
     owner.addGameObject(playerSwing);
     owner.addGameObject(playerGlideSwing);
+  }
+
+  public boolean isSpawn() {
+    return spawn;
+  }
+
+  public void setSpawn(boolean spawn) {
+    this.spawn = spawn;
+  }
+
+  public boolean isReverseSpawn() {
+    return reverseSpawn;
+  }
+
+  public void setReverseSpawn(boolean reverseSpawn) {
+    this.reverseSpawn = reverseSpawn;
+  }
+
+  public double getCeilHeight() {
+    return ceilHeight;
+  }
+
+  public void setCeilHeight(double ceilHeight) {
+    this.ceilHeight = ceilHeight;
+  }
+
+  public double getFloorHeight() {
+    return floorHeight;
+  }
+
+  public void setFloorHeight(double floorHeight) {
+    this.floorHeight = floorHeight;
+  }
+
+  public boolean isHideTimer() {
+    return hideTimer;
+  }
+
+  public void setHideTimer(boolean hideTimer) {
+    this.hideTimer = hideTimer;
+  }
+
+  public boolean isInvincible() {
+    return invincible;
+  }
+
+  public boolean isHurt() {
+    return hurt;
+  }
+
+  public void setHurt(boolean hurt) {
+    this.hurt = hurt;
   }
 
   public boolean canTeleport() {
@@ -372,7 +455,7 @@ public class Player extends GameObject implements Updatable, Collidable {
   }
 
   public boolean isTouchingGround() {
-    return getPosition().getY() >= GameScene.HEIGHT - getSize().getY();
+    return getPosition().getY() >= GameScene.HEIGHT - floorHeight - getSize().getY();
   }
 
   public boolean isGliding() {
@@ -399,6 +482,19 @@ public class Player extends GameObject implements Updatable, Collidable {
   }
 
   public PlayerInputState getCurrentState() {
+
+    if (dead || (health <= 0 && !gameController.isInvincible())) {
+      return PlayerInputState.Dead;
+    }
+    
+    if(spawn) {
+      return PlayerInputState.Spawned;
+    }
+
+    if (hurt) {
+      return PlayerInputState.Hurt;
+    }
+
     SceneEventObserver observer = SceneEventObserver.getInstance();
     KeyBinding binding = KeyBinding.getIntance();
 
@@ -409,6 +505,10 @@ public class Player extends GameObject implements Updatable, Collidable {
     KeyCode duckBinding = binding.getBinding(KeyBinding.DUCK);
 
     if (isTouchingGround()) {
+      if(freezeInput) {
+        return PlayerInputState.Idle;
+      }
+      
       if (observer.isPressing(jumpBinding) && releaseJump && releaseGlide) {
         return PlayerInputState.Jump;
       }
@@ -447,7 +547,7 @@ public class Player extends GameObject implements Updatable, Collidable {
   @Override
   public void render(RenderProperties properties) {
     GraphicsContext context = properties.getContext();
-    if (gameController.isHitbox()) {
+    if (gameController.isHitbox() && !dead) {
       context.setFill(Color.GREEN);
       context.fillRect(getPosition().getX(), getPosition().getY(), getSize().getX(), getSize().getY());
     }
@@ -467,16 +567,39 @@ public class Player extends GameObject implements Updatable, Collidable {
       context.drawImage(sprite, xPos, 0, 24, 24, xDes, getPosition().getY() + getSize().getY(), 24, 24);
     }
 
+    if (invisible || (invincible && ((getOwner().getTimeSpent() - startInvincible) / 150) % 2 == 0)) {
+      return;
+    }
+
     state.render(properties);
   }
 
   @Override
   public void receiveCollision(GameObject object) {
-    System.out.println("Receive Collision from " + object.getClass().toString());
+    if (object.getTag() == ObjectTag.Enemy) {
+      System.out.println("Receive Collision from " + object.getClass().toString());
+      hurt = true;
+      invincible = true;
+      startInvincible = getOwner().getTimeSpent();
+      if (gameController.isInvincible()) {
+        health = Math.max(1, health - 1);
+      } else {
+        health--;
+        if (health == 0) {
+          setDead();
+        }
+      }
+      PlayerHurtState.load(this).triggerHurt();
+    }
   }
 
   @Override
   public void update(RenderProperties properties) {
+    if (invincible && getOwner().getTimeSpent() >= startInvincible + invincibleDuration) {
+      invincible = false;
+      startInvincible = -1;
+    }
+
     if (radius > 0) {
       radius = Math.max(0, radius - shrinkSpeed * properties.getDeltaTime());
     }
@@ -485,12 +608,13 @@ public class Player extends GameObject implements Updatable, Collidable {
       cloudStep = false;
       releaseJump = true;
     }
-
-    if (isTouchingGround()) {
-      lastHitOnGlide = -1;
+    
+    if(isTouchingGround()) {
+      glide = false;
+      cloudStep = false;
     }
-
-    if (!eventObserver.isPressing(keyBinding.getBinding(KeyBinding.JUMP)) && (!isTouchingGround() || glide)) {
+    
+    if (!eventObserver.isPressing(keyBinding.getBinding(KeyBinding.JUMP))) {
       releaseGlide = true;
     }
 
@@ -516,6 +640,12 @@ public class Player extends GameObject implements Updatable, Collidable {
     PlayerState to = PlayerIdleState.load(this);
 
     switch (getCurrentState()) {
+    case Spawned:
+      to = PlayerSpawnedState.load(this);
+      break;
+    case Hurt:
+      to = PlayerHurtState.load(this);
+      break;
     case AttackGlide:
       to = PlayerAttackGlideState.load(this);
       break;
@@ -542,6 +672,10 @@ public class Player extends GameObject implements Updatable, Collidable {
       break;
     case Attack:
       to = PlayerAttackState.load(this);
+      break;
+    case Dead:
+      to = PlayerDiedState.load(this);
+      break;
     case Idle:
     default:
       velocity = Vector2.ZERO();
@@ -551,7 +685,7 @@ public class Player extends GameObject implements Updatable, Collidable {
 
     if (eventObserver.isPressing(keyBinding.getBinding(KeyBinding.SHURIKEN))) {
       if (!glide && shuriken > 0 && releaseShuriken) {
-        Shuriken s = pool.deploy(this);
+        pool.deploy(this);
         shuriken--;
         if (startRecharge == -1) {
           startRecharge = getOwner().getTimeSpent();
@@ -564,6 +698,10 @@ public class Player extends GameObject implements Updatable, Collidable {
 
     if (startRecharge != -1 && getOwner().getTimeSpent() - startRecharge >= 10_000) {
       shuriken++;
+      Platform.runLater(() -> {
+        AudioFactory.createSfxHandler(assets.findAudio("sfx_shuriken_pickup")).playThenDestroy();
+      });
+
       if (shuriken == 5) {
         startRecharge = -1;
       } else {
@@ -655,10 +793,8 @@ public class Player extends GameObject implements Updatable, Collidable {
     double x = Utility.range(pos.getX() + movement.getX(), 0, GameScene.WIDTH);
     double y = Utility.range(pos.getY() + movement.getY(), 0, GameScene.HEIGHT);
     x = Utility.range(x, 0, GameScene.WIDTH - getSize().getX());
-    y = Utility.range(y, 0, GameScene.HEIGHT - getSize().getY());
+    y = Utility.range(y, 0, GameScene.HEIGHT - floorHeight - getSize().getY());
     setPosition(x, y);
-    System.out.println(x);
-    System.out.println(y);
   }
 
   public boolean collides(GameObject enemy) {
@@ -678,5 +814,26 @@ public class Player extends GameObject implements Updatable, Collidable {
     double bottomB = posB.getY() + sizeB.getY();
 
     return rightA >= leftB && leftA <= rightB && bottomA >= topB && topA <= bottomB;
+  }
+
+  public void setDead() {
+    health = 0;
+    dead = true;
+    PlayerDiedState.load(this).reset();
+    hurt = false;
+    invincible = false;
+    startInvincible = -1;
+  }
+
+  public boolean isAlive() {
+    return !dead && (gameController.isInvincible() || health > 0);
+  }
+
+  public void setInvisible(boolean b) {
+    invisible = b;
+  }
+
+  public void setFreezeInput(boolean b) {
+    freezeInput = b;
   }
 }

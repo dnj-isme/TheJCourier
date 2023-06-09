@@ -8,6 +8,7 @@ import app.utility.canvas.Collidable;
 import app.utility.canvas.GameObject;
 import app.utility.canvas.GameScene;
 import app.utility.canvas.ObjectLayer;
+import app.utility.canvas.ObjectTag;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Updatable;
 import app.utility.canvas.Vector2;
@@ -17,7 +18,7 @@ import javafx.scene.paint.Color;
 
 public class PlayerGlideSwing extends GameObject implements Collidable, Updatable {
 
-  public static final Vector2 SIZE = new Vector2(15, 37.5);
+  public static final Vector2 SIZE = new Vector2(20, 50);
 
   // 256 x 52
   // 4 x 2
@@ -37,6 +38,7 @@ public class PlayerGlideSwing extends GameObject implements Collidable, Updatabl
   public PlayerGlideSwing(GameScene owner, Player player) {
     super(owner);
     setLayer(ObjectLayer.VFX);
+    setTag(ObjectTag.Player);
 
     this.player = player;
     setSize(SIZE);
@@ -59,11 +61,11 @@ public class PlayerGlideSwing extends GameObject implements Collidable, Updatabl
     // TODO Auto-generated method stub
     GraphicsContext context = properties.getContext();
 
-    if (controller.isHitbox()) {
+    if (controller.isHitbox() && player.isAlive()) {
       context.setFill(Color.LIGHTBLUE);
       context.fillRect(getPosition().getX(), getPosition().getY(), getSize().getX(), getSize().getY());
     }
-    
+
     if (startFrame != -1) {
       Vector2 renderPos = Vector2.renderCenter(getPosition(), getSize(), imageSize);
 
@@ -123,8 +125,9 @@ public class PlayerGlideSwing extends GameObject implements Collidable, Updatabl
   }
 
   public boolean collides(GameObject enemy) {
-    if(enemy instanceof DemonHive && !((DemonHive) enemy).isVisible()) return false;
-    
+    if (enemy instanceof DemonHive && !((DemonHive) enemy).isVisible())
+      return false;
+
     Vector2 posA = this.getPosition();
     Vector2 sizeA = this.getSize();
     Vector2 posB = enemy.getPosition();

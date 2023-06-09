@@ -40,7 +40,7 @@ public class PlayerUI extends GameObject{
   public void render(RenderProperties properties) {
     GraphicsContext context = properties.getContext();
 
-    context.setFill(Color.BLACK);
+    context.setFill(Color.WHITE);
     context.setFont(font);
     context.fillText("Player", 20, 20);
     
@@ -52,7 +52,7 @@ public class PlayerUI extends GameObject{
       context.drawImage(player.getShuriken() > i ? shuriken_filled : shuriken_empty, 90 + 14 * i, 25);
     }
     
-    if(controller.isShowTimer()) {      
+    if(controller.isShowTimer() && !player.isHideTimer()) {      
       context.fillText(getOwner().getTimeSpentFormat(), GameScene.WIDTH - 120, 30);
     }
   }

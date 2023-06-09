@@ -46,4 +46,8 @@ public class ShurikenPool {
       shuriken.stop();
     }
   }
+
+  public Vector<Shuriken> getAll() {
+    return shurikens;
+  }
 }

@@ -9,5 +9,5 @@ public enum PlayerInputState {
 
   Duck,
 
-  Attack, Idle,
+  Attack, Idle, Hurt, Dead, Spawned,
 }

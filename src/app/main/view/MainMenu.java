@@ -11,6 +11,8 @@ import app.main.controller.scene.SceneEventObserver;
 import app.main.game.scene.SpawnRoom;
 import app.main.view.component.Copyright;
 import app.main.view.component.TopLogo;
+import app.main.view.game.DeveloperScene;
+import app.main.view.game.SpawnScene;
 import app.utility.SceneTemplate;
 import app.utility.Utility;
 import javafx.application.Platform;

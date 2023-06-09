@@ -84,16 +84,29 @@ public final class AssetManager {
     imageCollection.put("player_walk_attack", loadImage("assets/sprite/player/player_walk_attack.png"));
     imageCollection.put("player_attack_airborne", loadImage("assets/sprite/player/player_attack_airborne.png"));
     imageCollection.put("player_shuriken", loadImage("assets/sprite/player/shuriken.png"));
+    imageCollection.put("player_hurt", loadImage("assets/sprite/player/player_hurt.png"));
+    imageCollection.put("player_dead", loadImage("assets/sprite/player/player_dead.png"));
+    imageCollection.put("player_respawn", loadImage("assets/sprite/player/player_respawn.png"));
 
     // Player UI
     imageCollection.put("health_filled", loadImage("assets/sprite/ui/health_filled.png"));
     imageCollection.put("health_empty", loadImage("assets/sprite/ui/health_empty.png"));
     imageCollection.put("shuriken_filled", loadImage("assets/sprite/ui/shuriken_filled.png"));
     imageCollection.put("shuriken_empty", loadImage("assets/sprite/ui/shuriken_empty.png"));
-
+    
+    // Quarble
+    imageCollection.put("quarble_idle", loadImage("assets/sprite/quarble/quarble_idle.png"));
+    imageCollection.put("quarble_wing_idle", loadImage("assets/sprite/quarble/quarble_wing_idle.png"));
+    imageCollection.put("quarble_wing", loadImage("assets/sprite/quarble/quarble_wing_static.png"));
+    
     // Other Object Section
     imageCollection.put("lantern", loadImage("assets/sprite/scene/lantern.png"));
     imageCollection.put("demon_hive", loadImage("assets/sprite/scene/DemonHives.png"));
+    imageCollection.put("floor_tile", loadImage("assets/sprite/scene/floor_tile.png"));
+    imageCollection.put("gate", loadImage("assets/sprite/scene/gate.png"));
+    imageCollection.put("gate_glow", loadImage("assets/sprite/scene/gate_glow.png"));
+    imageCollection.put("checkpoint", loadImage("assets/sprite/scene/checkpoint.png"));
+    imageCollection.put("background", loadImage("assets/sprite/scene/background.png"));
 
     // [END]
 
@@ -108,6 +121,7 @@ public final class AssetManager {
     audioCollection.put("bgm_intro", loadAudio("assets/audio/song/bgm_intro.wav"));
     audioCollection.put("bgm_main", loadAudio("assets/audio/song/bgm_main.wav"));
     audioCollection.put("bgm_boss", loadAudio("assets/audio/song/bgm_boss.wav"));
+    audioCollection.put("bgm_boss_intro", loadAudio("assets/audio/song/bgm_boss_intro.wav"));
     audioCollection.put("sample_music", loadAudio("assets/audio/song/bgm_sample.mp3"));
 
     // Game and UI SFX
@@ -144,6 +158,7 @@ public final class AssetManager {
     // Player Shuriken
     audioCollection.put("sfx_shuriken_throw", loadAudio("assets/audio/sfx/shuriken_throw.wav"));
     audioCollection.put("sfx_shuriken_stick", loadAudio("assets/audio/sfx/shuriken_stick.wav"));
+    audioCollection.put("sfx_shuriken_pickup", loadAudio("assets/audio/sfx/shuriken_pickup.wav"));
     // [END]
 
     Utility.debug("Finished Loading Audio");
