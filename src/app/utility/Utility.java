@@ -126,11 +126,11 @@ public class Utility {
     System.out.println();
   }
 
-  public static int range(int num, int min, int max) {
+  public static int clamp(int num, int min, int max) {
     return Math.min(Math.max(num, min), max);
   }
 
-  public static double range(double num, double min, double max) {
+  public static double clamp(double num, double min, double max) {
     return Math.min(Math.max(num, min), max);
   }
 }

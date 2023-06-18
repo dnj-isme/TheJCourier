@@ -84,9 +84,7 @@ public class PlayerAttackWalkState extends PlayerState{
   @Override
   public void update(RenderProperties properties) {
     // TODO Auto-generated method stub
-    Vector2 direction = updatePlayerDirection();
-    double movement = direction.getX() * player.getMoveSpeed();
-    player.getVelocity().setX(movement);
+    hanldeHorizontalMovement();
     
     if (player.getStartAttackFrame() == -1) {
       player.setStartAttackFrame(properties.getFrameCount());
@@ -111,5 +109,4 @@ public class PlayerAttackWalkState extends PlayerState{
     // TODO Auto-generated method stub
     
   }
-
 }

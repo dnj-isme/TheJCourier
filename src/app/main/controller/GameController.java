@@ -19,8 +19,8 @@ public final class GameController {
   private boolean invincible = false;
   private boolean hitbox = false;
   
-  private int music = 10;
-  private int sfx = 10;
+  private int music = 6;
+  private int sfx = 8;
   private double FPS = 60;
   
   private boolean showTimer = true;

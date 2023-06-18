@@ -8,7 +8,9 @@ import app.main.controller.scene.SceneController;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Rotate;
 
 public abstract class GameScene {
   private Vector<GameObject> gameObjects;
@@ -112,7 +114,7 @@ public abstract class GameScene {
   private boolean paused;
   private double current;
   private boolean stopped;
-  
+
   private GameObject exception;
 
   public void setException(GameObject object) {
@@ -128,8 +130,8 @@ public abstract class GameScene {
     }
 
     current = (now / 1_000_000_000.0) - startFrameTime;
-    
-    if(dead && startDead == -1) {
+
+    if (dead && startDead == -1) {
       startDead = (long) ((current - accumulatedPauseTime) * 1000);
     }
 
@@ -200,11 +202,16 @@ public abstract class GameScene {
 
   private void drawGameObjects(double deltaTime) {
     RenderProperties prop = new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount);
+    RenderProperties backup = new RenderProperties(context, 0, 0, startDead);
 
     context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
     for (GameObject gameObject : gameObjects) {
-      gameObject.render(prop);
+      if (!dead || exception.equals(gameObject)) {
+        gameObject.render(prop);
+      } else {
+        gameObject.render(backup);
+      }
     }
 
     if (border > 0) {
@@ -269,5 +276,31 @@ public abstract class GameScene {
 
   public void addGameObjects(Collection<? extends GameObject> objects) {
     gameObjects.addAll(objects);
+  }
+
+  private void rotate(double angle, double px, double py) {
+    Rotate r = new Rotate(angle, px, py);
+    context.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+  }
+
+  /**
+   * Render the sprite (in the scene attached to the class) with certain angle (rotation)
+   * @param image : The Image to Render
+   * @param angle : The rotation of the image (in degree)
+   * @param sPosX : The Sprite Position to render (X Axis)
+   * @param sPosY : The Sprite Position to render (Y Axis)
+   * @param sSizeX : The Sprite Size to render (X Axis)
+   * @param sSizeY : The Sprite Size to render (Y Axis)
+   * @param rPosX : The Canvas Target Position to render (X Axis)
+   * @param rPosY : The Canvas Target Position  to render (Y Axis)
+   * @param rSizeX : The Canvas Target Size to render (X Axis)
+   * @param rSizeY : The Canvas Target Size to render (Y Axis)
+   */
+  public void drawRotatedSprite(Image image, double angle, double sPosX, double sPosY,
+      double sSizeX, double sSizeY, double rPosX, double rPosY, double rSizeX, double rSizeY) {
+    context.save();
+    rotate(angle, sPosX + image.getWidth() / 2, sPosY + image.getHeight() / 2);
+    context.drawImage(image, sPosX, sPosY);
+    context.restore();
   }
 }

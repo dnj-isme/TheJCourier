@@ -4,6 +4,7 @@ import app.main.controller.GameController;
 import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.scene.SceneEventObserver;
+import app.main.game.object.Hittable;
 import app.main.game.object.player.Player;
 import app.utility.canvas.Collidable;
 import app.utility.canvas.GameObject;
@@ -16,7 +17,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
-public class Lantern extends GameObject implements Collidable, Updatable {
+public class Lantern extends GameObject implements Collidable, Updatable, Hittable {
 
   private static Vector2 SIZE = new Vector2(32, 32);
   private Image sprite;

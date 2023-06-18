@@ -18,9 +18,9 @@ public final class AssetManager {
 
   private boolean loaded = false;
 
-  private HashMap<String, Media> audioCollection = new HashMap<>();
-  private HashMap<String, Media> videoCollection = new HashMap<>();
-  private HashMap<String, Image> imageCollection = new HashMap<>();
+  private final HashMap<String, Media> audioCollection = new HashMap<>();
+  private final HashMap<String, Media> videoCollection = new HashMap<>();
+  private final HashMap<String, Image> imageCollection = new HashMap<>();
 
   private AssetManager() {
   }
@@ -108,6 +108,26 @@ public final class AssetManager {
     imageCollection.put("checkpoint", loadImage("assets/sprite/scene/checkpoint.png"));
     imageCollection.put("background", loadImage("assets/sprite/scene/background.png"));
 
+    // Boss
+    imageCollection.put("boss_idle", loadImage("assets/sprite/boss/boss_idle.png"));
+    imageCollection.put("boss_throw_dissapear", loadImage("assets/sprite/boss/boss_throw_dissapear.png"));
+    imageCollection.put("boss_throw", loadImage("assets/sprite/boss/boss_throw.png"));
+    imageCollection.put("sword_throw", loadImage("assets/sprite/boss/sword_throw.png"));
+    imageCollection.put("boss_blink", loadImage("assets/sprite/boss/boss_blink.png"));
+    imageCollection.put("boss_ceil", loadImage("assets/sprite/boss/boss_ceil.png"));
+    imageCollection.put("boss_cooldown", loadImage("assets/sprite/boss/boss_cooldown.png"));
+    imageCollection.put("boss_dash_down", loadImage("assets/sprite/boss/boss_dash_down.png"));
+    imageCollection.put("boss_dash_horizontal", loadImage("assets/sprite/boss/boss_dash_horizontal.png"));
+    imageCollection.put("boss_dash_up", loadImage("assets/sprite/boss/boss_dash_up.png"));
+    imageCollection.put("boss_wall_spawn", loadImage("assets/sprite/boss/boss_wall_spawn.png"));    
+    imageCollection.put("boss_wall", loadImage("assets/sprite/boss/boss_wall.png"));    
+    imageCollection.put("boss_ground", loadImage("assets/sprite/boss/boss_ground.png"));    
+    imageCollection.put("boss_levitate_spawn", loadImage("assets/sprite/boss/boss_levitate_spawn.png"));    
+    imageCollection.put("boss_levitate", loadImage("assets/sprite/boss/boss_levitate.png"));    
+    imageCollection.put("fire_center", loadImage("assets/sprite/boss/fire_center.png"));    
+    imageCollection.put("fire_corner", loadImage("assets/sprite/boss/fire_corner.png"));     
+    imageCollection.put("sword_burn_loop", loadImage("assets/sprite/boss/sword_burn_loop.png"));     
+    imageCollection.put("sword_burn_start", loadImage("assets/sprite/boss/sword_burn_start.png"));     
     // [END]
 
     Utility.debug("Finished Loading Images");
@@ -159,6 +179,12 @@ public final class AssetManager {
     audioCollection.put("sfx_shuriken_throw", loadAudio("assets/audio/sfx/shuriken_throw.wav"));
     audioCollection.put("sfx_shuriken_stick", loadAudio("assets/audio/sfx/shuriken_stick.wav"));
     audioCollection.put("sfx_shuriken_pickup", loadAudio("assets/audio/sfx/shuriken_pickup.wav"));
+    
+    // Boss General
+    audioCollection.put("sfx_boss_dissapear", loadAudio("assets/audio/sfx/boss_dissapear.mp3"));
+    audioCollection.put("sfx_boss_reappear", loadAudio("assets/audio/sfx/boss_reappear.mp3"));
+    audioCollection.put("sfx_boss_blink", loadAudio("assets/audio/sfx/boss_blink.mp3"));
+    audioCollection.put("sfx_boss_dash", loadAudio("assets/audio/sfx/boss_dash.mp3"));
     // [END]
 
     Utility.debug("Finished Loading Audio");

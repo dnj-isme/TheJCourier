@@ -21,11 +21,11 @@ public class Vector2 {
     this.y += y;
   }
   
-  public void setSubs(Vector2 vector) {
-    setSubs(vector.getX(), vector.getY());
+  public void setMinus(Vector2 vector) {
+    setMinus(vector.getX(), vector.getY());
   }
   
-  public void setSubs(double x, double y) {
+  public void setMinus(double x, double y) {
     this.x -= x;
     this.y -= y;
   }
@@ -110,12 +110,12 @@ public class Vector2 {
     return add(this, new Vector2(x, y));
   }
 
-  public Vector2 subs(Vector2 a) {
-    return subs(this, a);
+  public Vector2 minus(Vector2 a) {
+    return minus(this, a);
   }
   
-  public Vector2 subs(double x, double y) {
-    return subs(this, new Vector2(x, y));
+  public Vector2 minus(double x, double y) {
+    return minus(this, new Vector2(x, y));
   }
 
   public Vector2 mult(double a) {
@@ -178,7 +178,7 @@ public class Vector2 {
     return new Vector2(a.x + b.x, a.y + b.y);
   }
 
-  public static Vector2 subs(Vector2 a, Vector2 b) {
+  public static Vector2 minus(Vector2 a, Vector2 b) {
     return new Vector2(a.x - b.x, a.y - b.y);
   }
 
@@ -224,6 +224,13 @@ public class Vector2 {
     );
   }
   
+  public static Vector2 renderLeftCenter(Vector2 pos, Vector2 objSize, Vector2 imageSize) {
+    return new Vector2(
+        pos.getX(),
+        pos.getY() + (objSize.getY() / 2) - (imageSize.getY() / 2)
+    );
+  }
+  
   @Override
   public boolean equals(Object obj) {
     if(!(obj instanceof Vector2)) {
@@ -235,5 +242,12 @@ public class Vector2 {
 
   public static Vector2 square(double length) {
     return new Vector2(length, length);
+  }
+
+  public static Vector2 renderTopCenter(Vector2 pos, Vector2 objSize, Vector2 imageSize) {
+    return new Vector2(
+        pos.getX() + (objSize.getX() / 2) - (imageSize.getX() / 2),
+        pos.getY()
+    );
   }
 }

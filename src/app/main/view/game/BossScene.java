@@ -17,11 +17,12 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
-public class BossScene extends GamePageTemplate{
+public class BossScene extends GamePageTemplate {
   private MediaPlayer introMusic;
   private MediaPlayer loopMusic;
   private boolean loopMode = false;
-  
+  private boolean paused = false;
+
   public BossScene() {
     super(new BossRoom());
     getBase().setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -32,31 +33,34 @@ public class BossScene extends GamePageTemplate{
       loopMusic.play();
       loopMode = true;
     });
-    
-    Utility.delayAction(2000, new TimerTask() {
-      @Override
-      public void run() {        
-        Platform.runLater(() -> {
-          introMusic.play();
-        });
-      }
+
+    Platform.runLater(() -> {
+      Utility.delayAction(2000, new TimerTask() {
+        @Override
+        public void run() {
+          if(!paused) {            
+            introMusic.play();
+          }
+        }
+      });
     });
     loopMode = false;
   }
 
   @Override
   public void handlePause() {
-    if(loopMode) {
+    paused = true;
+    if (loopMode) {
       loopMusic.pause();
-    }
-    else {
+    } else {
       introMusic.pause();
     }
   }
-  
+
   public void handleStop() {
+    paused  = false;
     Platform.runLater(() -> {
-      for(double volume = loopMusic.getVolume(); volume >= 0.01; volume /= 1.5) {
+      for (double volume = loopMusic.getVolume(); volume >= 0.01; volume /= 1.5) {
         introMusic.setVolume(volume);
         loopMusic.setVolume(volume);
         System.out.println(volume);
@@ -75,10 +79,9 @@ public class BossScene extends GamePageTemplate{
 
   @Override
   public void handleResume() {
-    if(loopMode) {
+    if (loopMode) {
       loopMusic.play();
-    }
-    else {
+    } else {
       introMusic.play();
     }
   }

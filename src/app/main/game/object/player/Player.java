@@ -82,7 +82,7 @@ public class Player extends GameObject implements Updatable, Collidable {
   private long lastHitOnGlide = -1;
   private boolean glideHit = false;
 
-  private double teleportDistance = 100;
+  private double teleportDistance = 200;
   private Vector2 teleportLocation = new Vector2();
   private double radius = 0;
   private double shrinkSpeed = 40;
@@ -790,10 +790,10 @@ public class Player extends GameObject implements Updatable, Collidable {
     state.fixedUpdate(properties);
     Vector2 movement = getVelocity().mult(properties.getFixedDeltaTime());
     Vector2 pos = getPosition();
-    double x = Utility.range(pos.getX() + movement.getX(), 0, GameScene.WIDTH);
-    double y = Utility.range(pos.getY() + movement.getY(), 0, GameScene.HEIGHT);
-    x = Utility.range(x, 0, GameScene.WIDTH - getSize().getX());
-    y = Utility.range(y, 0, GameScene.HEIGHT - floorHeight - getSize().getY());
+    double x = Utility.clamp(pos.getX() + movement.getX(), 0, GameScene.WIDTH);
+    double y = Utility.clamp(pos.getY() + movement.getY(), 0, GameScene.HEIGHT);
+    x = Utility.clamp(x, 0, GameScene.WIDTH - getSize().getX());
+    y = Utility.clamp(y, 0, GameScene.HEIGHT - floorHeight - getSize().getY());
     setPosition(x, y);
   }
 

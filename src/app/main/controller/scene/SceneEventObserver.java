@@ -28,13 +28,11 @@ public class SceneEventObserver {
   public void start(Scene scene) {
     scene.setOnKeyPressed((e) -> {
       pressStatus.put(e.getCode(), true);
-      Utility.debug(e.getCode().toString() + " is pressed!");
       notifyTarget();
       e.consume();
     });
     scene.setOnKeyReleased((e) -> {
       pressStatus.put(e.getCode(), false);
-      Utility.debug(e.getCode().toString() + " is released!");
       notifyTarget(); 
       e.consume();  
     }); 

@@ -8,8 +8,12 @@ import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
+import app.main.game.object.Hittable;
+import app.main.game.object.boss.Boss;
 import app.main.game.object.boss.BossPlaceholder;
+import app.main.game.object.boss.BossSword;
 import app.main.game.object.other.Background;
+import app.main.game.object.other.DemonHive;
 import app.main.game.object.other.DemonHiveController;
 import app.main.game.object.other.FloorTile;
 import app.main.game.object.other.Gate;
@@ -40,9 +44,13 @@ public class BossRoom extends GameScene {
   private SceneEventObserver observer;
   private KeyBinding binding;
   
+  private Boss boss;
+  private BossSword sword1, sword2;
+  
   private Vector<GameObject> enemyEntities;
   
   private Runnable onTransition;
+  private DemonHiveController hive;
   
   public void setOnTransition(Runnable onTransition) {
     this.onTransition = onTransition;
@@ -75,17 +83,55 @@ public class BossRoom extends GameScene {
     player.setFloorHeight(20);
     player.setPosition(50, GameScene.HEIGHT - 20 - player.getSize().getY());
     
+    addEnemyEntity(boss = Boss.getInstance(this));
+    boss.reset(this);
+    boss.setPosition(
+        GameScene.WIDTH - boss.getSize().getX() - 100,
+        GameScene.HEIGHT - boss.getSize().getY() - 20);
+    boss.setFacing(Vector2.LEFT());
+    addEnemyEntity(sword1 = boss.getSword1());
+    addEnemyEntity(sword2 = boss.getSword2());
+    
+    hive = boss.getDemonHiveController();
+    double centerX = (GameScene.WIDTH - 40) / 2;
+    double centerY = ((GameScene.HEIGHT - 20) / 2);
+    
+    System.out.println(new Vector2(centerX, centerY));
+    
+    int diff = 60;
+    hive.add(new Vector2(centerX, centerY), HiveTag.E);
+    hive.add(new Vector2(centerX + diff * 1, centerY + 50), HiveTag.D);
+    hive.add(new Vector2(centerX + diff * 1, centerY - 50), HiveTag.D);
+    hive.add(new Vector2(centerX - diff * 1, centerY + 50), HiveTag.D);
+    hive.add(new Vector2(centerX - diff * 1, centerY - 50), HiveTag.D);
+    hive.add(new Vector2(centerX - diff * 2, centerY), HiveTag.C);
+    hive.add(new Vector2(centerX + diff * 2, centerY), HiveTag.C);
+    hive.add(new Vector2(centerX + diff * 3, centerY + 50), HiveTag.B);
+    hive.add(new Vector2(centerX + diff * 3, centerY - 50), HiveTag.B);
+    hive.add(new Vector2(centerX - diff * 3, centerY + 50), HiveTag.B);
+    hive.add(new Vector2(centerX - diff * 3, centerY - 50), HiveTag.B);
+    hive.add(new Vector2(centerX - diff * 4, centerY), HiveTag.A);
+    hive.add(new Vector2(centerX + diff * 4, centerY), HiveTag.A);
+    
+    enemyEntities.addAll(hive.getHives());
+    addEnemyEntity(boss.getSword1());
     addFloor();
     addForeground();
     addBackground();
   }
   
+//  private void addHives() {
+//    for (DemonHive hive : hive.getHives()) {
+//      addGameObjects(hive);
+//    }
+//  }
+
   private void addForeground() {
     
   }
   
   private void addBackground() {
-    
+      
   }
   
   private void addFloor() {
@@ -107,28 +153,28 @@ public class BossRoom extends GameScene {
   
   @Override
   public void performGameLogic(RenderProperties properties) {
-    if(started && !player.isSpawn()) {
-      this.stop();
-      onTransition.run();
+    if(!player.isAlive()) {
+      deadTrigger();
+      setException(player);
     }
     
     for (GameObject enemy : enemyEntities) {
       if (enemy instanceof Collidable) {
-        if (player.collides(enemy)) {
+        if (player.collides(enemy) && !player.isInvincible()) {
           player.receiveCollision(enemy);
         }
-        if (player.isAttacking() && playerSwing.collides(enemy)) {
+        if (player.isAttacking() && playerSwing.collides(enemy) && enemy instanceof Hittable) {
           ((Collidable) enemy).receiveCollision(player);
           player.setCloudStep(true);
           if (lastDone != player.getAttackCount()) {
             Platform.runLater(() -> {
               AudioFactory.createSfxHandler(manager.findAudio("sfx_swordhit_" + Utility.random(1, 3)))
                   .playThenDestroy();
-              lastDone = player.getAttackCount();
             });
+            lastDone = player.getAttackCount();
           }
         }
-        if (player.isAttacking() && playerGlideSwing.collides(enemy)) {
+        if (player.isAttacking() && playerGlideSwing.collides(enemy) && enemy instanceof Hittable) {
           ((Collidable) enemy).receiveCollision(player);
           player.setCloudStep(true);
           player.setGlideHit(true);
@@ -136,12 +182,12 @@ public class BossRoom extends GameScene {
             Platform.runLater(() -> {
               AudioFactory.createSfxHandler(manager.findAudio("sfx_swordhit_" + Utility.random(1, 3)))
                   .playThenDestroy();
-              lastDone = player.getAttackCount();
             });
+            lastDone = player.getAttackCount();
           }
         }
         for (Shuriken shuriken : pool.getAll()) {
-          if (shuriken.isEnabled() && enemy.getTag() == ObjectTag.Enemy && shuriken.collides(enemy)) {
+          if (shuriken.isEnabled() && enemy.getTag() == ObjectTag.Enemy && shuriken.collides(enemy) && enemy instanceof Hittable) {
             ((Collidable) enemy).receiveCollision(shuriken);
             Platform.runLater(() -> {
               AudioFactory.createSfxHandler(manager.findAudio("sfx_shuriken_stick")).playThenDestroy();
@@ -151,5 +197,9 @@ public class BossRoom extends GameScene {
         }
       }
     }
+  }
+
+  private void deadTrigger() {
+    
   }
 }

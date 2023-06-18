@@ -4,7 +4,9 @@ import java.util.Vector;
 
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
+import app.main.game.object.Hittable;
 import app.main.game.object.boss.BossPlaceholder;
+import app.main.game.object.boss.BossSword;
 import app.main.game.object.other.DemonHiveController;
 import app.main.game.object.other.DemonHiveController.HiveTag;
 import app.main.game.object.other.Lantern;
@@ -68,6 +70,12 @@ public class DeveloperRoom extends GameScene {
 
     addEnemyEntity(lantern1 = new Lantern(this));
     addEnemyEntity(lantern2 = new Lantern(this));
+    
+    BossSword sword = new BossSword(this);
+    sword.setPosition(200, 100);
+    sword.setDestination(500, 120);
+    sword.startAnimation();
+    addEnemyEntity(sword);
 
     lantern1.setPosition(100, GameScene.HEIGHT - placeholder.getSize().getY() - 50);
     lantern2.setPosition(300, GameScene.HEIGHT - placeholder.getSize().getY() - 100);
@@ -99,7 +107,7 @@ public class DeveloperRoom extends GameScene {
         if (player.collides(enemy) && !player.isInvincible()) {
           player.receiveCollision(enemy);
         }
-        if (player.isAttacking() && playerSwing.collides(enemy)) {
+        if (player.isAttacking() && playerSwing.collides(enemy) && enemy instanceof Hittable) {
           ((Collidable) enemy).receiveCollision(player);
           player.setCloudStep(true);
           if (lastDone != player.getAttackCount()) {
@@ -110,7 +118,7 @@ public class DeveloperRoom extends GameScene {
             lastDone = player.getAttackCount();
           }
         }
-        if (player.isAttacking() && playerGlideSwing.collides(enemy)) {
+        if (player.isAttacking() && playerGlideSwing.collides(enemy) && enemy instanceof Hittable) {
           ((Collidable) enemy).receiveCollision(player);
           player.setCloudStep(true);
           player.setGlideHit(true);
@@ -123,7 +131,7 @@ public class DeveloperRoom extends GameScene {
           }
         }
         for (Shuriken shuriken : pool.getAll()) {
-          if (shuriken.isEnabled() && enemy.getTag() == ObjectTag.Enemy && shuriken.collides(enemy)) {
+          if (shuriken.isEnabled() && enemy.getTag() == ObjectTag.Enemy && shuriken.collides(enemy) && enemy instanceof Hittable) {
             ((Collidable) enemy).receiveCollision(shuriken);
             Platform.runLater(() -> {
               AudioFactory.createSfxHandler(manager.findAudio("sfx_shuriken_stick")).playThenDestroy();

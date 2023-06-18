@@ -2,6 +2,7 @@ package app.main.game.object.other;
 
 import app.main.controller.GameController;
 import app.main.controller.asset.AssetManager;
+import app.main.game.object.Hittable;
 import app.main.game.object.player.Player;
 import app.utility.Utility;
 import app.utility.canvas.Collidable;
@@ -16,7 +17,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
-public class DemonHive extends GameObject implements Collidable, Updatable {
+public class DemonHive extends GameObject implements Collidable, Updatable, Hittable {
 
   private DemonHiveController controller;
   private Image sprite;

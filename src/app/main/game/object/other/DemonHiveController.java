@@ -14,19 +14,43 @@ public class DemonHiveController {
 
   private GameScene owner;
   private Vector<DemonHive> hives;
+  private HashMap<DemonHive, HiveTag> hiveTags;
   private HashMap<HiveTag, Boolean> visibility;
   
   public DemonHiveController(GameScene owner) {
     this.owner = owner;
     hives = new Vector<DemonHive>();
     visibility = new HashMap<>();
-    boolean randAB = Utility.chance(50);
-    boolean randCD = Utility.chance(50);
-    visibility.put(HiveTag.A, randAB);
-    visibility.put(HiveTag.B, !randAB);
-    visibility.put(HiveTag.C, randCD);
-    visibility.put(HiveTag.D, !randCD);
-    visibility.put(HiveTag.E, randCD);
+    hiveTags = new HashMap<>();
+    randomize();
+  }
+  
+  public void randomize() {
+    boolean rand1 = Utility.chance(50);
+    boolean rand2 = Utility.chance(50);
+    boolean rand3 = Utility.chance(50);
+    visibility.put(HiveTag.A, rand1);
+    visibility.put(HiveTag.B, rand2);
+    visibility.put(HiveTag.C, !rand1);
+    visibility.put(HiveTag.D, !rand2);
+    visibility.put(HiveTag.E, !rand1 && !rand2 ? true : rand3);
+  }
+  
+  public void hideAll() {
+    for (DemonHive demonHive : hives) {
+      if(demonHive.isVisible()) {
+        demonHive.updateState();
+      }
+    }
+  }
+  
+  public void refresh() {
+    randomize();
+    for (DemonHive demonHive : hives) {
+      if(demonHive.isVisible() != visibility.get(hiveTags.get(demonHive))) {
+        demonHive.updateState();
+      }
+    }
   }
   
   private int playerHit = -1;
@@ -44,6 +68,7 @@ public class DemonHiveController {
     ins.setPosition(position);
     ins.setVisible(visibility.get(tag));
     hives.add(ins);
+    hiveTags.put(ins, tag);
     owner.addGameObject(ins);
   }
 
