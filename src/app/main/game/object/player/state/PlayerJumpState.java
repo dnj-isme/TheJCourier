@@ -68,10 +68,7 @@ public class PlayerJumpState extends PlayerState {
   @Override
   public void update(RenderProperties properties) {
     detectGlide();
-
-    Vector2 direction = updatePlayerDirection();
-    double movement = direction.getX() * player.getMoveSpeed();
-    player.getVelocity().setX(movement);
+    hanldeHorizontalMovement();
 
     if (eventObserver.isPressing(keyBinding.getBinding(KeyBinding.JUMP)) && player.isTouchingGround()) {
       // Condition 1: Player can jump when touching the ground

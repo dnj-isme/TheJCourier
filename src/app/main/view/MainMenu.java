@@ -134,6 +134,14 @@ public class MainMenu extends SceneTemplate {
       }
     });
 
+    highScoreBtn.setOnAction((e) -> {
+      if(!pressSomething) {
+        AudioFactory.createSfxHandler(manager.findAudio("sfx_game_start")).playThenDestroy();
+        pressSomething = true;
+        controller.switchScene(new MainMenu(), 500);
+      }
+    });
+
     optionBtn.setOnAction((e) -> {
       if(!pressSomething) {        
         AudioFactory.createSfxHandler(manager.findAudio("sfx_game_start")).playThenDestroy();

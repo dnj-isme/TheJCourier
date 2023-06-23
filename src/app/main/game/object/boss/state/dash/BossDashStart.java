@@ -43,7 +43,7 @@ public class BossDashStart extends BossState {
     this.boss = boss;
     assets = AssetManager.getInstance();
     spriteThrow = assets.findImage("boss_throw");
-    spriteDissapear = assets.findImage("boss_throw_dissapear");
+    spriteDissapear = assets.findImage("boss_throw_disappear");
     imageSize = new Vector2(120.25, 120);
     reset();
   }
@@ -63,7 +63,6 @@ public class BossDashStart extends BossState {
     if (!initialized) {
       initialized = true;
       startAnim1 = properties.getFrameCount();
-      boss.getDemonHiveController().refresh();
       super.bossFacingPlayer();
     }
 
@@ -82,12 +81,15 @@ public class BossDashStart extends BossState {
     } else if (finishAnim1 && sword.reachesDestination() && startAnim2 == -1) {
       startAnim2 = properties.getFrameCount();
       Platform.runLater(() -> {
-        AudioFactory.createSfxHandler(assets.findAudio("sfx_boss_dissapear")).playThenDestroy();
+        AudioFactory.createSfxHandler(assets.findAudio("sfx_boss_disappear")).playThenDestroy();
       });
     } else if (finishAnim2) {
       reset();
+      if(sword.getDestination().equals(Vector2.ZERO())) {
+        return;
+      }
       boss.setPosition(sword.getPosition());
-      sword.reset();
+      sword.reset(boss.getOwner());
       BossDash state = BossDash.load(boss);
       state.reset();
       boss.setState(state);

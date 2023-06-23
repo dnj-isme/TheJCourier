@@ -78,10 +78,7 @@ public class PlayerFallState extends PlayerState {
       });
     }
     
-    // Movement X
-    Vector2 direction = updatePlayerDirection();
-    double movement = direction.getX() * player.getMoveSpeed();
-    player.getVelocity().setX(movement);
+    hanldeHorizontalMovement();
   }
   
   @Override

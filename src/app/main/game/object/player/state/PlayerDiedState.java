@@ -40,26 +40,27 @@ public class PlayerDiedState extends PlayerState {
     diedSprite = asset.findImage("player_dead");
     hurtSprite = asset.findImage("player_hurt");
     imageSize = new Vector2(60, 60);
-    start = false;
     playDeadSound = false;
-    startFrame = -1;
   }
 
   int cd = 2;
   int startDuration = 30;
-  private boolean start;
   private long startFrame;
 
   public void reset() {
-    start = true;
     playDeadSound = false;
+    startFrame = -1;
   }
 
   @Override
   public void render(RenderProperties properties) {
     GraphicsContext context = properties.getContext();
     Vector2 renderPos = Vector2.renderBottomCenter(player.getPosition(), player.getSize(), imageSize);
-    
+
+    if(startFrame == -1) {
+      startFrame = properties.getFrameCount();
+    }
+
     Vector2 facing = player.getFacing();
     if(facing.getX() < 0) {
       renderPos.setX(renderPos.getX() + 60);
@@ -69,6 +70,15 @@ public class PlayerDiedState extends PlayerState {
       context.drawImage(hurtSprite, 0, 0, imageSize.getX(), 60, renderPos.getX(), renderPos.getY(), 60 * facing.getX(), 60);
     }
     else {
+
+      if(!playDeadSound) {
+        playDeadSound = true;
+        AudioFactory.createSfxHandler(asset.findAudio("sfx_died")).playThenDestroy();
+        System.out.println("FX DIED");
+        System.out.println(startFrame);
+        System.out.println(startDuration);
+        System.out.println(properties.getFrameCount());
+      }
       long index = (properties.getFrameCount() - (startFrame + startDuration)) / cd;
       context.drawImage(diedSprite, imageSize.getX() * index, 0, imageSize.getX(), 60, renderPos.getX(), renderPos.getY(), 60 * facing.getX(), 60);
       if(index >= 40) {
@@ -80,15 +90,14 @@ public class PlayerDiedState extends PlayerState {
 
   @Override
   public void update(RenderProperties properties) {
-    if(start) {
-      start = false;
+    if(startFrame == -1) {
       startFrame = properties.getFrameCount();
-      AudioFactory.createSfxHandler(asset.findAudio("sfx_player_hurt")).playThenDestroy();
     }
-    else if(properties.getFrameCount() >= startFrame + startDuration && !playDeadSound) {
-      playDeadSound = true;
-      AudioFactory.createSfxHandler(asset.findAudio("sfx_died")).playThenDestroy();
-    }
+//    else if(properties.getFrameCount() >= startFrame + startDuration && !playDeadSound) {
+//      playDeadSound = true;
+//      AudioFactory.createSfxHandler(asset.findAudio("sfx_died")).playThenDestroy();
+//      System.out.println("DIED");
+//    }
     player.setVelocity(Vector2.ZERO());
   } 
 

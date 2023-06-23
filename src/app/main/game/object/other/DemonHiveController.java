@@ -8,9 +8,9 @@ import app.utility.canvas.GameScene;
 import app.utility.canvas.Vector2;
 
 public class DemonHiveController {
-  public enum HiveTag {
-    A, B, C, D, E
-  }
+    public enum HiveTag {
+      A, B, C, D, E
+    }
 
   private GameScene owner;
   private Vector<DemonHive> hives;
@@ -19,9 +19,16 @@ public class DemonHiveController {
   
   public DemonHiveController(GameScene owner) {
     this.owner = owner;
-    hives = new Vector<DemonHive>();
+    hives = new Vector<>();
     visibility = new HashMap<>();
     hiveTags = new HashMap<>();
+    randomize();
+  }
+  public void reset(GameScene owner) {
+    this.owner = owner;
+    hives.clear();
+    visibility.clear();
+    hiveTags.clear();
     randomize();
   }
   

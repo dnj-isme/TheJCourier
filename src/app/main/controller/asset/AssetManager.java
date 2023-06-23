@@ -110,7 +110,9 @@ public final class AssetManager {
 
     // Boss
     imageCollection.put("boss_idle", loadImage("assets/sprite/boss/boss_idle.png"));
-    imageCollection.put("boss_throw_dissapear", loadImage("assets/sprite/boss/boss_throw_dissapear.png"));
+    imageCollection.put("boss_explosion", loadImage("assets/sprite/boss/boss_explosion.png"));
+    imageCollection.put("boss_dead", loadImage("assets/sprite/boss/boss_dead.png"));
+    imageCollection.put("boss_throw_disappear", loadImage("assets/sprite/boss/boss_throw_disappear.png"));
     imageCollection.put("boss_throw", loadImage("assets/sprite/boss/boss_throw.png"));
     imageCollection.put("sword_throw", loadImage("assets/sprite/boss/sword_throw.png"));
     imageCollection.put("boss_blink", loadImage("assets/sprite/boss/boss_blink.png"));
@@ -122,12 +124,17 @@ public final class AssetManager {
     imageCollection.put("boss_wall_spawn", loadImage("assets/sprite/boss/boss_wall_spawn.png"));    
     imageCollection.put("boss_wall", loadImage("assets/sprite/boss/boss_wall.png"));    
     imageCollection.put("boss_ground", loadImage("assets/sprite/boss/boss_ground.png"));    
-    imageCollection.put("boss_levitate_spawn", loadImage("assets/sprite/boss/boss_levitate_spawn.png"));    
-    imageCollection.put("boss_levitate", loadImage("assets/sprite/boss/boss_levitate.png"));    
-    imageCollection.put("fire_center", loadImage("assets/sprite/boss/fire_center.png"));    
-    imageCollection.put("fire_corner", loadImage("assets/sprite/boss/fire_corner.png"));     
-    imageCollection.put("sword_burn_loop", loadImage("assets/sprite/boss/sword_burn_loop.png"));     
-    imageCollection.put("sword_burn_start", loadImage("assets/sprite/boss/sword_burn_start.png"));     
+    imageCollection.put("boss_levitate_spawn", loadImage("assets/sprite/boss/boss_levitate_spawn.png"));
+    imageCollection.put("boss_levitate", loadImage("assets/sprite/boss/boss_levitate.png"));
+    imageCollection.put("boss_spawn", loadImage("assets/sprite/boss/boss_spawn.png"));
+    imageCollection.put("fire_center", loadImage("assets/sprite/boss/fire_center.png"));
+    imageCollection.put("fire_corner", loadImage("assets/sprite/boss/fire_corner.png"));
+    imageCollection.put("fire_center", loadImage("assets/sprite/boss/fire_center.png"));
+    imageCollection.put("fire_corner", loadImage("assets/sprite/boss/fire_corner.png"));
+    imageCollection.put("left_sword_burn_loop", loadImage("assets/sprite/boss/left_sword_burn_loop.png"));
+    imageCollection.put("left_sword_burn_start", loadImage("assets/sprite/boss/left_sword_burn_start.png"));
+    imageCollection.put("right_sword_burn_loop", loadImage("assets/sprite/boss/right_sword_burn_loop.png"));
+    imageCollection.put("right_sword_burn_start", loadImage("assets/sprite/boss/right_sword_burn_start.png"));
     // [END]
 
     Utility.debug("Finished Loading Images");
@@ -181,10 +188,18 @@ public final class AssetManager {
     audioCollection.put("sfx_shuriken_pickup", loadAudio("assets/audio/sfx/shuriken_pickup.wav"));
     
     // Boss General
-    audioCollection.put("sfx_boss_dissapear", loadAudio("assets/audio/sfx/boss_dissapear.mp3"));
-    audioCollection.put("sfx_boss_reappear", loadAudio("assets/audio/sfx/boss_reappear.mp3"));
-    audioCollection.put("sfx_boss_blink", loadAudio("assets/audio/sfx/boss_blink.mp3"));
-    audioCollection.put("sfx_boss_dash", loadAudio("assets/audio/sfx/boss_dash.mp3"));
+    audioCollection.put("sfx_boss_disappear", loadAudio("assets/audio/sfx/boss_disappear.wav"));
+    audioCollection.put("sfx_boss_reappear", loadAudio("assets/audio/sfx/boss_reappear.wav"));
+    audioCollection.put("sfx_boss_blink", loadAudio("assets/audio/sfx/boss_blink.wav"));
+    audioCollection.put("sfx_boss_dash", loadAudio("assets/audio/sfx/boss_dash.wav"));
+    audioCollection.put("sfx_boss_laff", loadAudio("assets/audio/sfx/boss_laff.wav"));
+    audioCollection.put("sfx_boss_start_flame", loadAudio("assets/audio/sfx/boss_start_flame.wav"));
+    audioCollection.put("sfx_boss_flame", loadAudio("assets/audio/sfx/boss_flame.wav"));
+    audioCollection.put("sfx_boss_defeat", loadAudio("assets/audio/sfx/boss_defeat.wav"));
+
+    // Win
+    audioCollection.put("you_win", loadAudio("assets/audio/sfx/you_win.mp3"));
+    audioCollection.put("easter_egg", loadAudio("assets/audio/sfx/you_win_easter.mp3"));
     // [END]
 
     Utility.debug("Finished Loading Audio");
@@ -203,6 +218,9 @@ public final class AssetManager {
 
   private Media loadAudio(String path) {
     Media output = new Media(new File(path).toURI().toString());
+    if(output.getError() != null) {
+      output.getError().printStackTrace();
+    }
     return output;
   }
 
@@ -210,6 +228,9 @@ public final class AssetManager {
     Image i = new Image(new File(path).toURI().toString());
     if (i.getException() != null)
       i.getException().printStackTrace();
+    if(i.isError()) {
+      Utility.debug("ERROR in attempt opening " + path);
+    }
     return i;
   }
 }

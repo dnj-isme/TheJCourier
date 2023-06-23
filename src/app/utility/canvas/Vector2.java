@@ -223,11 +223,18 @@ public class Vector2 {
         pos.getY() + (objSize.getY() / 2) - (imageSize.getY() / 2)
     );
   }
-  
+
   public static Vector2 renderLeftCenter(Vector2 pos, Vector2 objSize, Vector2 imageSize) {
     return new Vector2(
-        pos.getX(),
-        pos.getY() + (objSize.getY() / 2) - (imageSize.getY() / 2)
+            pos.getX(),
+            pos.getY() + (objSize.getY() / 2) - (imageSize.getY() / 2)
+    );
+  }
+
+  public static Vector2 renderRightCenter(Vector2 pos, Vector2 objSize, Vector2 imageSize) {
+    return new Vector2(
+            pos.getX() + objSize.getX() - imageSize.getX(),
+            pos.getY() + (objSize.getY() / 2) - (imageSize.getY() / 2)
     );
   }
   

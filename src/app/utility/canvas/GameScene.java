@@ -1,6 +1,7 @@
 package app.utility.canvas;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Vector;
 
 import app.main.controller.GameController;
@@ -19,6 +20,7 @@ public abstract class GameScene {
   private AnimationTimer animationTimer;
   private GameController controller;
 
+
   private double border;
 
   private double lastFrameTime;
@@ -36,6 +38,7 @@ public abstract class GameScene {
 
   public static final double WIDTH = 640;
   public static final double HEIGHT = 360;
+  private long startDeadTime = -1;
 
   public GameScene() {
     controller = GameController.getInstance();
@@ -77,15 +80,14 @@ public abstract class GameScene {
     initializeGameObjects();
   }
 
-  public Vector2 getCanvasSize() {
-    return new Vector2(canvas.getWidth(), canvas.getHeight());
-  }
-
   public boolean isDead() {
     return dead;
   }
 
   public void setDead(boolean dead) {
+    if(dead) {
+      startDeadTime = getTimeSpent();
+    }
     this.dead = dead;
   }
 
@@ -132,7 +134,7 @@ public abstract class GameScene {
     current = (now / 1_000_000_000.0) - startFrameTime;
 
     if (dead && startDead == -1) {
-      startDead = (long) ((current - accumulatedPauseTime) * 1000);
+      startDead = frameCount;
     }
 
     if (pauseFlag) {
@@ -165,7 +167,7 @@ public abstract class GameScene {
   }
 
   public long getTimeSpent() {
-    return dead ? startDead : (long) ((current - accumulatedPauseTime) * 1000);
+    return dead ? startDeadTime : (long) ((current - accumulatedPauseTime) * 1000);
   }
 
   public boolean isPaused() {
@@ -173,7 +175,7 @@ public abstract class GameScene {
   }
 
   public String getTimeSpentFormat() {
-    long time = dead ? startDead : (long) ((current - accumulatedPauseTime) * 1000);
+    long time = dead ? startDeadTime : (long) ((current - accumulatedPauseTime) * 1000);
     long min = time / 60000;
     long sec = (time / 1000) % 60;
     long ms = time % 1000;
@@ -182,18 +184,24 @@ public abstract class GameScene {
 
   private void notifyUpdate(double deltaTime) {
     RenderProperties prop = new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount);
+    RenderProperties deadProp = new RenderProperties(context, 0, 0, startDead);
+
     for (GameObject obj : gameObjects) {
-      if (obj instanceof Updatable && (!dead || obj.equals(exception))) {
-        ((Updatable) obj).update(prop);
+      if (obj instanceof Updatable) {
+        RenderProperties currentProp = dead ? (obj.equals(exception) ? prop : deadProp) : prop;
+        ((Updatable) obj).update(currentProp);
       }
     }
   }
 
   private void notifyFixedUpdate(double deltaTime) {
     RenderProperties prop = new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount);
+    RenderProperties deadProp = new RenderProperties(context, 0, 0, startDead);
+
     for (GameObject obj : gameObjects) {
-      if (obj instanceof Updatable && (!dead || obj.equals(exception))) {
-        ((Updatable) obj).fixedUpdate(prop);
+      if (obj instanceof Updatable) {
+        RenderProperties currentProp = dead ? (obj.equals(exception) ? prop : deadProp) : prop;
+        ((Updatable) obj).fixedUpdate(currentProp);
       }
     }
   }
@@ -202,16 +210,13 @@ public abstract class GameScene {
 
   private void drawGameObjects(double deltaTime) {
     RenderProperties prop = new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount);
-    RenderProperties backup = new RenderProperties(context, 0, 0, startDead);
+    RenderProperties deadProp = new RenderProperties(context, 0, 0, startDead);
 
     context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
     for (GameObject gameObject : gameObjects) {
-      if (!dead || exception.equals(gameObject)) {
-        gameObject.render(prop);
-      } else {
-        gameObject.render(backup);
-      }
+      RenderProperties currentProp = dead ? (gameObject.equals(exception) ? prop : deadProp) : prop;
+        gameObject.render(currentProp);
     }
 
     if (border > 0) {
@@ -233,6 +238,7 @@ public abstract class GameScene {
   }
 
   public void start() {
+//    gameObjects.sort(Comparator.comparingInt(a -> a.getLayer().getIndex()));
     gameObjects.sort((a, b) -> a.getLayer().getIndex() - b.getLayer().getIndex());
     animationTimer.start();
   }
@@ -276,31 +282,5 @@ public abstract class GameScene {
 
   public void addGameObjects(Collection<? extends GameObject> objects) {
     gameObjects.addAll(objects);
-  }
-
-  private void rotate(double angle, double px, double py) {
-    Rotate r = new Rotate(angle, px, py);
-    context.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
-  }
-
-  /**
-   * Render the sprite (in the scene attached to the class) with certain angle (rotation)
-   * @param image : The Image to Render
-   * @param angle : The rotation of the image (in degree)
-   * @param sPosX : The Sprite Position to render (X Axis)
-   * @param sPosY : The Sprite Position to render (Y Axis)
-   * @param sSizeX : The Sprite Size to render (X Axis)
-   * @param sSizeY : The Sprite Size to render (Y Axis)
-   * @param rPosX : The Canvas Target Position to render (X Axis)
-   * @param rPosY : The Canvas Target Position  to render (Y Axis)
-   * @param rSizeX : The Canvas Target Size to render (X Axis)
-   * @param rSizeY : The Canvas Target Size to render (Y Axis)
-   */
-  public void drawRotatedSprite(Image image, double angle, double sPosX, double sPosY,
-      double sSizeX, double sSizeY, double rPosX, double rPosY, double rSizeX, double rSizeY) {
-    context.save();
-    rotate(angle, sPosX + image.getWidth() / 2, sPosY + image.getHeight() / 2);
-    context.drawImage(image, sPosX, sPosY);
-    context.restore();
   }
 }

@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 public class TopLogo extends Label implements Component {
 
     public TopLogo() {
-        super("Logo Placeholder");
+        super("The JCourier");
         setFont(FontManager.loadFont(48));
         setTextFill(Color.WHITE);
     }

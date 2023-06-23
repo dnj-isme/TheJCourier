@@ -64,9 +64,7 @@ public class PlayerWalkState extends PlayerState {
   
   @Override
   public void update(RenderProperties properties) {
-    Vector2 direction = updatePlayerDirection();
-    double movement = direction.getX() * player.getMoveSpeed();
-    player.getVelocity().setX(movement);
+    hanldeHorizontalMovement();
 
     if(eventObserver.isPressing(keyBinding.getBinding(KeyBinding.ATTACK)) && player.isReleaseAttack()) {
       player.setAttack(true);

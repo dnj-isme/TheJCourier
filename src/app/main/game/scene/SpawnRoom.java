@@ -48,7 +48,7 @@ public class SpawnRoom extends GameScene {
 
   @Override
   protected void initializeGameObjects() {
-    enemyEntities = new Vector<GameObject>();
+    enemyEntities = new Vector<>();
     manager = AssetManager.getInstance();
     observer = SceneEventObserver.getInstance();
     binding = KeyBinding.getIntance();

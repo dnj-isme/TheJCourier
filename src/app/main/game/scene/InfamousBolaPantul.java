@@ -1,6 +1,6 @@
 package app.main.game.scene;
 
-import app.main.game.object.Bola;
+import app.main.game.object.other.Bola;
 import app.utility.canvas.GameScene;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Vector2;

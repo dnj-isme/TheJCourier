@@ -5,6 +5,7 @@ import java.util.TimerTask;
 import app.main.controller.asset.AssetManager;
 import app.main.game.object.boss.Boss;
 import app.main.game.object.boss.BossState;
+import app.main.game.object.boss.state.dash.BossDash;
 import app.main.game.object.boss.state.dash.BossDashStart;
 import app.main.game.object.boss.state.levitate.BossLevitateStart;
 import app.utility.Utility;
@@ -16,6 +17,7 @@ import javafx.scene.image.Image;
 public class BossIdleState extends BossState {
 
   private static BossIdleState instance;
+  private int turn = 1;
 
   public static BossIdleState load(Boss boss) {
     if (instance == null) {
@@ -41,6 +43,7 @@ public class BossIdleState extends BossState {
   
   public void reset() {
     initialized = false;
+    turn = 1;
   }
 
   @Override
@@ -52,20 +55,22 @@ public class BossIdleState extends BossState {
         @Override
         public void run() {
           reset();
-            boss.setState(BossLevitateStart.load(boss));
-//          // TODO: Uncomment this snippet if it's finished
-//          if(boss.isFirst()) {
-//            boss.setState(BossDashStart.load(boss));
-//            boss.setFirst(false);
-//            return;
-//          }
-//          int nextState = Utility.random(1, 2);
-//          if(nextState == 1) {
-//            boss.setState(BossDashStart.load(boss));
-//          }
-//          else if (nextState == 2) {
-//            boss.setState(BossLevitateStart.load(boss));
-//          }
+          if(boss.isFirst()) {
+            boss.setState(BossDashStart.load(boss));
+            boss.setFirst(false);
+          }
+          else if(turn % 2 == 1) {
+            BossLevitateStart next = BossLevitateStart.load(boss);
+            next.reset();
+            boss.setState(next);
+          }
+          else {
+            BossDashStart next = BossDashStart.load(boss);
+            next.reset();
+            boss.setState(next);
+          }
+          boss.getDemonHiveController().refresh();
+          turn++;
         }
       });
     }

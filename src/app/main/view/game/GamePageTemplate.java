@@ -8,21 +8,14 @@ import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
-import app.main.game.object.player.shuriken.ShurikenPool;
-import app.main.game.scene.DeveloperRoom;
 import app.main.view.MainMenu;
 import app.main.view.component.KeyBindingComponent;
 import app.main.view.component.OptionComponent;
 import app.main.view.component.PauseComponent;
 import app.utility.SceneTemplate;
-import app.utility.Utility;
 import app.utility.canvas.GameScene;
-import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
@@ -110,7 +103,7 @@ public abstract class GamePageTemplate extends SceneTemplate{
   
   @Override
   public void handleSceneKeyChanges(SceneEventObserver sceneEventObserver) {
-    if(sceneEventObserver.isPressing(keyBinding.getBinding(KeyBinding.PAUSE)) && !gameScene.isPaused()) {
+    if(!gameScene.isDead() && sceneEventObserver.isPressing(keyBinding.getBinding(KeyBinding.PAUSE)) && !gameScene.isPaused()) {
       sceneEventObserver.setPressing(keyBinding.getBinding(KeyBinding.PAUSE), false);
       gameScene.pause();
       handlePause();

@@ -42,7 +42,7 @@ public class BossLevitateStart extends BossState {
     this.boss = boss;
     assets = AssetManager.getInstance();
     spriteThrow = assets.findImage("boss_throw");
-    spriteDisappear = assets.findImage("boss_throw_dissapear");
+    spriteDisappear = assets.findImage("boss_throw_disappear");
     imageSize = new Vector2(120.25, 120);
     reset();
   }
@@ -58,12 +58,12 @@ public class BossLevitateStart extends BossState {
     startThrow = false;
   }
 
+
   @Override
   public void update(RenderProperties properties) {
     if (!initialized) {
       initialized = true;
       startAnim1 = properties.getFrameCount();
-      boss.getDemonHiveController().refresh();
       super.bossFacingPlayer();
     }
 
@@ -76,13 +76,13 @@ public class BossLevitateStart extends BossState {
       sword2.setDestination(GameScene.WIDTH - sword2.getSize().getX(), boss.getPosition().getY());
       sword1.startAnimation();
       sword2.startAnimation();
-    } else if (finishAnim1 && sword1.reachesDestination() && startAnim2 == -1) {
+    } else if (finishAnim1 && sword1.reachesDestination() && sword2.reachesDestination() && startAnim2 == -1) {
       startAnim2 = properties.getFrameCount();
-      Platform.runLater(() -> AudioFactory.createSfxHandler(assets.findAudio("sfx_boss_dissapear")).playThenDestroy());
+      Platform.runLater(() -> AudioFactory.createSfxHandler(assets.findAudio("sfx_boss_disappear")).playThenDestroy());
     } else if (finishAnim2) {
       reset();
-      sword1.reset();
-      sword2.reset();
+      sword1.reset(boss.getOwner());
+      sword2.reset(boss.getOwner());
       BossLevitate state = BossLevitate.load(boss);
       state.reset();
       boss.setState(state);
@@ -101,7 +101,7 @@ public class BossLevitateStart extends BossState {
     GraphicsContext context = properties.getContext();
     Vector2 renderPos = Vector2.renderBottomCenter(boss.getPosition(), boss.getSize(), imageSize);
 
-    if (!finishAnim1 || !sword1.reachesDestination()) {
+    if (!finishAnim1 || !sword1.reachesDestination() || !sword2.reachesDestination()) {
       int index = (int) ((double) (properties.getFrameCount() - startAnim1) / cd);
       if (index >= 7) {
         index = 6;

@@ -32,7 +32,7 @@ public class DemonHive extends GameObject implements Collidable, Updatable, Hitt
     super(owner);
     this.controller = controller;
     visible = false;
-    setLayer(ObjectLayer.Block);
+    setLayer(ObjectLayer.Foreground);
     setSize(40, 40);
 
     gameController = GameController.getInstance();

@@ -1,9 +1,11 @@
 package app.main.controller;
 
 import app.main.controller.asset.AssetManager;
-import app.utility.DBConnect;
+import app.utility.database.DBConnect;
 
 public final class GameController {
+  private long winTime = -1;
+
   private GameController() {}
   
   private static GameController instance;
@@ -19,7 +21,7 @@ public final class GameController {
   private boolean invincible = false;
   private boolean hitbox = false;
   
-  private int music = 6;
+  private int music = 5;
   private int sfx = 8;
   private double FPS = 60;
   
@@ -98,5 +100,13 @@ public final class GameController {
 
   public double getFPS() {
     return FPS;
+  }
+
+  public void setWinTime(long timeSpent) {
+    this.winTime = timeSpent;
+  }
+
+  public long getWinTime() {
+    return winTime;
   }
 }

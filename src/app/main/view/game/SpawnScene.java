@@ -32,7 +32,12 @@ public class SpawnScene extends GamePageTemplate{
       loopMusic.play();
       loopMode = true;
     });
-    introMusic.play();
+    Utility.delayAction(1000, new TimerTask() {
+      @Override
+      public void run() {
+        introMusic.play();
+      }
+    });
     loopMode = false;
     
 

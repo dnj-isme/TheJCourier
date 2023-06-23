@@ -1,11 +1,14 @@
-package app.utility;
+package app.utility.database;
+
+import app.utility.Message;
+import javafx.scene.control.Alert;
 
 import java.sql.*;
 
 public class DBConnect {
     private final String USERNAME = "root";
     private final String PASSWORD = "";
-    private final String DATABASE = "TheJCourier";
+    private final String DATABASE = "thejcourier";
     private final String HOST = "localhost:3306";
     private final String CONNECTION = 
             String.format("jdbc:mysql://%s/%s", HOST, DATABASE);
@@ -27,7 +30,8 @@ public class DBConnect {
             connection = DriverManager.getConnection(CONNECTION, USERNAME, PASSWORD);
             statement = connection.createStatement();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Database Error!!\nPlease Create 'TheJCourier' database with the specified schematic first");
+            System.exit(1);
         }
     }
     

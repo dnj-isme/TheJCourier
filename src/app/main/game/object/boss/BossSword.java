@@ -33,10 +33,11 @@ public class BossSword extends GameObject implements Updatable, Collidable {
     AssetManager assets = AssetManager.getInstance();
     imageSize = new Vector2(50, 50);
     sprite = assets.findImage("sword_throw");
-    reset();
+    reset(owner);
   }
 
-  public void reset() {
+  public void reset(GameScene owner) {
+    setOwner(owner);
     started = false;
     destination = Vector2.ZERO();
     direction = Vector2.LEFT();
@@ -102,8 +103,12 @@ public class BossSword extends GameObject implements Updatable, Collidable {
   public void fixedUpdate(RenderProperties properties) {
     if(!started) return;
     double speed = 500;
-    Vector2 movement = direction.mult(speed * properties.getFixedDeltaTime());
+    Vector2 movement = direction.getNormalized().mult(speed * properties.getFixedDeltaTime());
     setPosition(Utility.clamp(getPosition().getX() + movement.getX(), 0, GameScene.WIDTH - getSize().getX()),
         Utility.clamp(getPosition().getY() + movement.getY(), 0, GameScene.HEIGHT - getSize().getY() - 20));
+  }
+
+  public Object getDestination() {
+    return  destination;
   }
 }

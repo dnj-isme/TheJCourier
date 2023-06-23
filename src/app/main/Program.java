@@ -1,17 +1,18 @@
 package app.main;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 
 import app.main.controller.GameController;
+import app.main.controller.HighScoreController;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.scene.SceneController;
+import app.main.game.object.player.Player;
 import app.main.game.scene.DeveloperRoom;
-import app.main.view.IntroVideo;
-import app.main.view.MainMenu;
-import app.main.view.OptionMenu;
-import app.main.view.SplashScreen;
-import app.main.view.TestScene;
-import app.main.view.YouLostMenu;
+import app.main.model.HighScoreRecord;
+import app.main.view.*;
 import app.main.view.game.BossScene;
 import app.main.view.game.DeveloperScene;
 import app.main.view.game.GamePageTemplate;
@@ -23,6 +24,7 @@ import javafx.stage.Stage;
 
 public class Program extends Application {
   public static void main(String[] args) {
+    // Auto Migration
     boolean debug = false;
     boolean invincible = false;
     boolean hitbox = false;
@@ -80,11 +82,7 @@ public class Program extends Application {
       stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
       stage.getIcons().add(asset.findImage("icon"));
     });
-//    sceneController.switchScene(new IntroVideo());
-//    sceneController.switchScene(new OptionMenu());
-//    sceneController.switchScene(new DeveloperScene());
-    sceneController.switchScene(new BossScene());
-
+    sceneController.switchScene(new MainMenu());
     primaryStage.show();
   }
 }

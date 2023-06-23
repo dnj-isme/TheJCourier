@@ -5,6 +5,7 @@ import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneEventObserver;
+import app.main.game.object.boss.Boss;
 import app.main.game.object.player.shuriken.Shuriken;
 import app.main.game.object.player.shuriken.ShurikenPool;
 import app.main.game.object.player.state.PlayerAttackGlideState;
@@ -118,9 +119,9 @@ public class Player extends GameObject implements Updatable, Collidable {
   private boolean invisible;
   private boolean freezeInput;
   
-  public void triggerSpawn(boolean dissapear) {
+  public void triggerSpawn(boolean disappear) {
     spawn = true;
-    reverseSpawn = dissapear;
+    reverseSpawn = disappear;
   }
 
   public static Vector2 SIZE = new Vector2(24, 40);
@@ -130,6 +131,8 @@ public class Player extends GameObject implements Updatable, Collidable {
     health = 8;
     shuriken = 5;
     glide = false;
+    invincible = false;
+    hurt = false;
     cloudStep = false;
     jump = false;
     duck = false;
@@ -150,6 +153,8 @@ public class Player extends GameObject implements Updatable, Collidable {
     floorHeight = 0;
     ceilHeight = 0;
     invisible = false;
+    hasDead = false;
+    state = PlayerIdleState.load(this);
 
     setOwner(owner);
     pool = new ShurikenPool(shuriken, owner);
@@ -567,7 +572,7 @@ public class Player extends GameObject implements Updatable, Collidable {
       context.drawImage(sprite, xPos, 0, 24, 24, xDes, getPosition().getY() + getSize().getY(), 24, 24);
     }
 
-    if (invisible || (invincible && ((getOwner().getTimeSpent() - startInvincible) / 150) % 2 == 0)) {
+    if (invisible || (invincible && ((getOwner().getTimeSpent() - startInvincible) / 100) % 2 == 0)) {
       return;
     }
 
@@ -576,25 +581,24 @@ public class Player extends GameObject implements Updatable, Collidable {
 
   @Override
   public void receiveCollision(GameObject object) {
-    if (object.getTag() == ObjectTag.Enemy) {
-      System.out.println("Receive Collision from " + object.getClass().toString());
-      hurt = true;
-      invincible = true;
-      startInvincible = getOwner().getTimeSpent();
+    if (object.getTag() == ObjectTag.Enemy && isAlive()) {
+      AudioFactory.createSfxHandler(assets.findAudio("sfx_player_hurt")).playThenDestroy();
       if (gameController.isInvincible()) {
         health = Math.max(1, health - 1);
       } else {
         health--;
-        if (health == 0) {
-          setDead();
-        }
       }
+      hurt = true;
+      invincible = true;
+      startInvincible = getOwner().getTimeSpent();
       PlayerHurtState.load(this).triggerHurt();
     }
   }
 
   @Override
   public void update(RenderProperties properties) {
+    if(getOwner().isDead() && health > 0) return;
+
     if (invincible && getOwner().getTimeSpent() >= startInvincible + invincibleDuration) {
       invincible = false;
       startInvincible = -1;
@@ -630,8 +634,7 @@ public class Player extends GameObject implements Updatable, Collidable {
     if (attack) {
       int index = Math.min(7, (int) ((properties.getFrameCount() - startAttackFrame) / 1));
 
-      if (index >= 7) {
-        index = 6;
+      if (index == 7) {
         finishedAttack = true;
         attack = false;
       }
@@ -683,7 +686,7 @@ public class Player extends GameObject implements Updatable, Collidable {
     }
     handlePositioning(state, to);
 
-    if (eventObserver.isPressing(keyBinding.getBinding(KeyBinding.SHURIKEN))) {
+    if (eventObserver.isPressing(keyBinding.getBinding(KeyBinding.SHURIKEN)) && !freezeInput) {
       if (!glide && shuriken > 0 && releaseShuriken) {
         pool.deploy(this);
         shuriken--;
@@ -787,6 +790,8 @@ public class Player extends GameObject implements Updatable, Collidable {
 
   @Override
   public void fixedUpdate(RenderProperties properties) {
+    if(getOwner().isDead()) return;
+
     state.fixedUpdate(properties);
     Vector2 movement = getVelocity().mult(properties.getFixedDeltaTime());
     Vector2 pos = getPosition();
@@ -798,6 +803,7 @@ public class Player extends GameObject implements Updatable, Collidable {
   }
 
   public boolean collides(GameObject enemy) {
+    if(enemy instanceof Boss && ((Boss) enemy).isDead()) return false;
     Vector2 posA = this.getPosition();
     Vector2 sizeA = this.getSize();
     Vector2 posB = enemy.getPosition();
@@ -816,13 +822,29 @@ public class Player extends GameObject implements Updatable, Collidable {
     return rightA >= leftB && leftA <= rightB && bottomA >= topB && topA <= bottomB;
   }
 
+  boolean hasDead = false;
+
   public void setDead() {
-    health = 0;
-    dead = true;
-    PlayerDiedState.load(this).reset();
-    hurt = false;
-    invincible = false;
-    startInvincible = -1;
+    if(!hasDead) {
+      PlayerDiedState.load(this).reset();
+      hasDead = true;
+      health = 0;
+      dead = true;
+      hurt = false;
+      invincible = false;
+      startInvincible = -1;
+      getOwner().setException(this);
+      getOwner().setDead(true);
+      if(onDead != null) {
+        onDead.run();
+      }
+    }
+  }
+
+  private Runnable onDead;
+
+  public void setOnDead(Runnable onDead) {
+    this.onDead = onDead;
   }
 
   public boolean isAlive() {
@@ -835,5 +857,9 @@ public class Player extends GameObject implements Updatable, Collidable {
 
   public void setFreezeInput(boolean b) {
     freezeInput = b;
+  }
+
+  public Runnable getOnDead() {
+    return onDead;
   }
 }

@@ -32,6 +32,7 @@ public class BossDash extends BossState{
   private Vector2 direction;
   private Vector2 previousWall;
 
+  private Image bossSpawn;
   private final Image bossWall;
   private final Image bossWallSpawn;
   private final Image bossCeil;
@@ -43,6 +44,7 @@ public class BossDash extends BossState{
   
   private boolean first = true;
   private double startAnim = -1;
+  private final double dashSpeed = 800;
   private int dashCount = 0;
 
   private BossDash(Boss boss) {
@@ -96,12 +98,6 @@ public class BossDash extends BossState{
         determineNextPos(properties.getFrameCount());
       }
       
-      Utility.cls();
-      System.out.println("Position   = " + boss.getPosition());
-      System.out.println("Boundary X = " + (GameScene.WIDTH - boss.getSize().getX()));
-      System.out.println("Boundary Y = " + (GameScene.HEIGHT - boss.getSize().getY() - 20));
-      System.out.println(touchesWall());
-      
       if(!touchesWall().equals(Vector2.ZERO()) && !touchesWall().equals(previousWall)) {
         startAnim = properties.getFrameCount();
         direction = Vector2.ZERO();
@@ -122,7 +118,6 @@ public class BossDash extends BossState{
   @Override
   public void fixedUpdate(RenderProperties properties) {
     if(state == DashState.STRIKE) {
-      double dashSpeed = 800;
       Vector2 velocity = direction.mult(dashSpeed * properties.getFixedDeltaTime());
       boss.setPosition(
           Utility.clamp(boss.getPosition().getX() + velocity.getX(), 0, GameScene.WIDTH - boss.getSize().getX()),
@@ -149,7 +144,7 @@ public class BossDash extends BossState{
   protected void render(RenderProperties properties) {
     GraphicsContext context = properties.getContext();
     
-    long index;
+    long index = -1;
     Vector2 renderPos;
     Image sprite;
     double xPos;
@@ -159,7 +154,6 @@ public class BossDash extends BossState{
       // 120 x 78
       // 6 x 1
       index = (int) ((properties.getFrameCount() - startAnim) / 4);
-      System.out.println(index);
       if(index < 6) {
         renderPos = Vector2.renderLeftCenter(boss.getPosition(), boss.getSize(), new Vector2(120, 78));
         xPos = index * 120;
@@ -172,8 +166,7 @@ public class BossDash extends BossState{
       }
     case PREPARE:
     case CHARGE:
-      if(touchesWall().getY() == 0)
-      if(boss.getPosition().getY() != 0) {
+      if(touchesWall().getY() == 0) {
         renderPos = Vector2.renderCenter(boss.getPosition(), boss.getSize(), new Vector2(37, 57));
         int facing = 1;
         if(renderPos.getX() > 10) {
@@ -194,24 +187,34 @@ public class BossDash extends BossState{
           }
         }
       }
-      else {
-        if(touchesWall().getY() == -1) {
-          renderPos = Vector2.renderTopCenter(boss.getPosition(), boss.getSize(), new Vector2(57, 33));
+      else if(touchesWall().getY() == -1) {
+        renderPos = Vector2.renderTopCenter(boss.getPosition(), boss.getSize(), new Vector2(57, 33));
 
-          context.drawImage(bossCeil,renderPos.getX(), renderPos.getY());
-        }
-        else {
-          renderPos = Vector2.renderTopCenter(boss.getPosition(), boss.getSize(), new Vector2(38, 54));
-          
-          context.drawImage(bossGround, renderPos.getX(), renderPos.getY());
-
-        }
-        if(state == DashState.CHARGE) {
+        context.drawImage(bossCeil, renderPos.getX(), renderPos.getY());
+        if (state == DashState.CHARGE) {
 
           renderPos = Vector2.renderCenter(boss.getPosition(), boss.getSize(), new Vector2(20, 20));
           index = (int) ((properties.getFrameCount() - startAnim) / 2);
           xPos = index * 20;
           context.drawImage(bossBlink, xPos, 0, 20, 20, renderPos.getX() + 20, renderPos.getY() - 15, 20, 20);
+
+          if (index >= 8) {
+            state = DashState.STRIKE;
+            startAnim = -1;
+          }
+        }
+      }
+      else {
+        renderPos = Vector2.renderBottomCenter(boss.getPosition(), boss.getSize(), new Vector2(38, 54));
+
+        context.drawImage(bossGround, renderPos.getX(), renderPos.getY());
+
+        if(state == DashState.CHARGE) {
+
+          renderPos = Vector2.renderCenter(boss.getPosition(), boss.getSize(), new Vector2(20, 20));
+          index = (int) ((properties.getFrameCount() - startAnim) / 2);
+          xPos = index * 20;
+          context.drawImage(bossBlink, xPos, 0, 20, 20, renderPos.getX() + 10, renderPos.getY() - 15, 20, 20);
 
           if(index >= 8) {
             state = DashState.STRIKE;
@@ -249,23 +252,25 @@ public class BossDash extends BossState{
         dashCount++;
         Vector2 playerPos = Player.getInstance(boss.getOwner()).getPosition();
         direction = playerPos.minus(boss.getPosition()).getNormalized();
-        return;
       }
-      direction = new Vector2(
-          (GameScene.WIDTH - boss.getSize().getX())/2, 
-          0)
-          .minus(boss.getPosition()).getNormalized();
+      else {
+        direction = new Vector2(
+                (GameScene.WIDTH - boss.getSize().getX())/2,
+                0)
+                .minus(boss.getPosition()).getNormalized();
+      }
     }
     else if (dashCount == 1) {
       direction = new Vector2(
           (GameScene.WIDTH - boss.getSize().getX())/2,
-          (GameScene.HEIGHT - boss.getSize().getY() - 20)/2)
+          (GameScene.HEIGHT - boss.getSize().getY() - 20))
           .minus(boss.getPosition()).getNormalized();
     }
-    else {      
+    else {
       Vector2 playerPos = Player.getInstance(boss.getOwner()).getPosition();
       direction = playerPos.minus(boss.getPosition()).getNormalized();
     }
+    System.out.println(direction);
     this.startAnim = startAnim;
     AudioFactory.createSfxHandler(assets.findAudio("sfx_boss_dash")).playThenDestroy();
   }

@@ -6,25 +6,20 @@ import java.util.Vector;
 import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
-import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.Hittable;
 import app.main.game.object.boss.Boss;
-import app.main.game.object.boss.BossPlaceholder;
 import app.main.game.object.boss.BossSword;
-import app.main.game.object.other.Background;
-import app.main.game.object.other.DemonHive;
+import app.main.game.object.boss.state.levitate.BossGroundFire;
 import app.main.game.object.other.DemonHiveController;
 import app.main.game.object.other.FloorTile;
-import app.main.game.object.other.Gate;
-import app.main.game.object.other.Lantern;
 import app.main.game.object.other.DemonHiveController.HiveTag;
+import app.main.game.object.other.YouWinUI;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.shuriken.Shuriken;
 import app.main.game.object.player.shuriken.ShurikenPool;
 import app.main.game.object.player.swing.PlayerGlideSwing;
 import app.main.game.object.player.swing.PlayerSwing;
-import app.main.view.game.BossScene;
 import app.utility.Utility;
 import app.utility.canvas.Collidable;
 import app.utility.canvas.GameObject;
@@ -35,7 +30,7 @@ import app.utility.canvas.Vector2;
 import javafx.application.Platform;
 
 public class BossRoom extends GameScene {
-  
+
   private Player player;
   private PlayerSwing playerSwing;
   private PlayerGlideSwing playerGlideSwing;
@@ -43,6 +38,7 @@ public class BossRoom extends GameScene {
   private AssetManager manager;
   private SceneEventObserver observer;
   private KeyBinding binding;
+  private YouWinUI youWinUI;
   
   private Boss boss;
   private BossSword sword1, sword2;
@@ -51,14 +47,22 @@ public class BossRoom extends GameScene {
   
   private Runnable onTransition;
   private DemonHiveController hive;
-  
+  private BossGroundFire fire;
+  private boolean youWinScreen = false;
+  private Runnable onWin;
+  private Runnable onStop;
+
+  public void setOnWin(Runnable onWin) {
+    this.onWin = onWin;
+  }
+
   public void setOnTransition(Runnable onTransition) {
     this.onTransition = onTransition;
   }
 
   @Override
   protected void initializeGameObjects() {
-    enemyEntities = new Vector<GameObject>();
+    enemyEntities = new Vector<>();
     manager = AssetManager.getInstance();
     observer = SceneEventObserver.getInstance();
     binding = KeyBinding.getIntance();
@@ -82,7 +86,7 @@ public class BossRoom extends GameScene {
     pool = player.getPool();
     player.setFloorHeight(20);
     player.setPosition(50, GameScene.HEIGHT - 20 - player.getSize().getY());
-    
+    addGameObject(new YouWinUI(this));
     addEnemyEntity(boss = Boss.getInstance(this));
     boss.reset(this);
     boss.setPosition(
@@ -91,7 +95,8 @@ public class BossRoom extends GameScene {
     boss.setFacing(Vector2.LEFT());
     addEnemyEntity(sword1 = boss.getSword1());
     addEnemyEntity(sword2 = boss.getSword2());
-    
+    addEnemyEntity(fire = boss.getFire());
+
     hive = boss.getDemonHiveController();
     double centerX = (GameScene.WIDTH - 40) / 2;
     double centerY = ((GameScene.HEIGHT - 20) / 2);
@@ -118,13 +123,8 @@ public class BossRoom extends GameScene {
     addFloor();
     addForeground();
     addBackground();
+    addGameObject(youWinUI = new YouWinUI(this));
   }
-  
-//  private void addHives() {
-//    for (DemonHive hive : hive.getHives()) {
-//      addGameObjects(hive);
-//    }
-//  }
 
   private void addForeground() {
     
@@ -133,7 +133,7 @@ public class BossRoom extends GameScene {
   private void addBackground() {
       
   }
-  
+
   private void addFloor() {
     int y = (int) (GameScene.HEIGHT - 20);
     for (int x = 0; x < GameScene.WIDTH; x += 20) {
@@ -153,15 +153,32 @@ public class BossRoom extends GameScene {
   
   @Override
   public void performGameLogic(RenderProperties properties) {
-    if(!player.isAlive()) {
-      deadTrigger();
-      setException(player);
+    if(boss.getHp() <= 0) {
+      boss.setDead();
+      if (!youWinScreen) {
+        youWinScreen = true;
+        if(onStop != null) {
+          onStop.run();
+        }
+        Utility.delayAction(5000, new TimerTask() {
+          @Override
+          public void run() {
+            youWinUI.show();
+            if(onWin != null) {
+              onWin.run();
+            }
+          }
+        });
+      }
     }
-    
+
     for (GameObject enemy : enemyEntities) {
       if (enemy instanceof Collidable) {
-        if (player.collides(enemy) && !player.isInvincible()) {
+        if (player.collides(enemy) && !player.isInvincible() && !(enemy instanceof BossGroundFire && !((BossGroundFire) enemy).isActive())) {
           player.receiveCollision(enemy);
+          if(!player.isAlive()) {
+            player.setDead();
+          }
         }
         if (player.isAttacking() && playerSwing.collides(enemy) && enemy instanceof Hittable) {
           ((Collidable) enemy).receiveCollision(player);
@@ -199,7 +216,7 @@ public class BossRoom extends GameScene {
     }
   }
 
-  private void deadTrigger() {
-    
+  public void setOnStop(Runnable onStop) {
+    this.onStop = onStop;
   }
 }

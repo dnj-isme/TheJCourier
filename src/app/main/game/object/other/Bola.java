@@ -1,4 +1,4 @@
-package app.main.game.object;
+package app.main.game.object.other;
 
 import app.utility.canvas.GameObject;
 import app.utility.canvas.GameScene;

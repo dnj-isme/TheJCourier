@@ -95,11 +95,11 @@ public class DeveloperRoom extends GameScene {
 
   private long lastDone = 0;
 
+
   @Override
   public void performGameLogic(RenderProperties properties) {
     if(!player.isAlive()) {
-      deadTrigger();
-      setException(player);
+      player.setDead();
     }
     
     for (GameObject enemy : enemyEntities) {
