@@ -9,6 +9,7 @@ import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
 import app.utility.SceneTemplate;
 import app.utility.Utility;
+import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -19,6 +20,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 import java.util.TimerTask;
 
@@ -35,8 +37,6 @@ public class YouWinMenu extends SceneTemplate {
 
     @Override
     public Node initComponents() {
-        System.out.println(GameController.getInstance().getWinTime());
-
         base = new BorderPane();
         controller = SceneController.getInstance();
 
@@ -95,25 +95,34 @@ public class YouWinMenu extends SceneTemplate {
         label.setTextFill(Color.WHITE);
     }
 
-    private void applyButtonStyle(Button button, Font font) {
-        AssetManager manager = AssetManager.getInstance();
-        String defaultStyle = "-fx-background-color: transparent; " + "-fx-border-width: 3px; "
-                + "-fx-border-radius: 5px; " + "-fx-text-fill: white; ";
-        button.setFont(font);
-        button.setStyle(defaultStyle + "-fx-border-color: transparent;");
-        button.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            button.setStyle(
-                    defaultStyle + (newVal ? "-fx-border-color: #fcdc80;" : "-fx-border-color: transparent;"));
-        });
-        button.hoverProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) {
-                button.requestFocus();
-                AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_cursor_8")).playThenDestroy();
-            } else {
-                button.getParent().requestFocus();
-            }
-        });
-    }
+  private void applyButtonStyle(Button button, Font font) {
+    String defaultStyle = "-fx-background-color: transparent; "
+            + "-fx-border-width: 3px; "
+            + "-fx-border-radius: 5px; "
+            + "-fx-text-fill: white; ";
+    button.setFont(font);
+    button.setStyle(defaultStyle + "-fx-border-color: transparent;");
+
+    final PauseTransition pause = new PauseTransition(Duration.millis(200));
+
+    button.setOnMouseEntered(event -> {
+      pause.stop();
+      button.requestFocus();
+    });
+
+    button.setOnMouseExited(event -> {
+      pause.setOnFinished(e -> base.requestFocus());
+      pause.play();
+    });
+
+    button.focusedProperty().addListener((obs, oldVal, newVal)-> {
+      button.setStyle(defaultStyle + (newVal ? "-fx-border-color: #fcdc80;" : "-fx-border-color: transparent;"));
+
+      if(newVal) {
+        AudioFactory.createSfxHandler(AssetManager.getInstance().findAudio("sfx_menu_cursor_8")).playThenDestroy();
+      }
+    });
+  }
 
     @Override
     public void eventHandling() {

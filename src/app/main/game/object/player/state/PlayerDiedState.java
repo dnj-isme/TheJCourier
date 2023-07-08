@@ -74,10 +74,6 @@ public class PlayerDiedState extends PlayerState {
       if(!playDeadSound) {
         playDeadSound = true;
         AudioFactory.createSfxHandler(asset.findAudio("sfx_died")).playThenDestroy();
-        System.out.println("FX DIED");
-        System.out.println(startFrame);
-        System.out.println(startDuration);
-        System.out.println(properties.getFrameCount());
       }
       long index = (properties.getFrameCount() - (startFrame + startDuration)) / cd;
       context.drawImage(diedSprite, imageSize.getX() * index, 0, imageSize.getX(), 60, renderPos.getX(), renderPos.getY(), 60 * facing.getX(), 60);
@@ -93,11 +89,6 @@ public class PlayerDiedState extends PlayerState {
     if(startFrame == -1) {
       startFrame = properties.getFrameCount();
     }
-//    else if(properties.getFrameCount() >= startFrame + startDuration && !playDeadSound) {
-//      playDeadSound = true;
-//      AudioFactory.createSfxHandler(asset.findAudio("sfx_died")).playThenDestroy();
-//      System.out.println("DIED");
-//    }
     player.setVelocity(Vector2.ZERO());
   } 
 

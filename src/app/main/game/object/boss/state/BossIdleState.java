@@ -43,7 +43,6 @@ public class BossIdleState extends BossState {
   
   public void reset() {
     initialized = false;
-    turn = 1;
   }
 
   @Override
@@ -55,6 +54,7 @@ public class BossIdleState extends BossState {
         @Override
         public void run() {
           reset();
+          turn++;
           if(boss.isFirst()) {
             boss.setState(BossDashStart.load(boss));
             boss.setFirst(false);
@@ -70,7 +70,6 @@ public class BossIdleState extends BossState {
             boss.setState(next);
           }
           boss.getDemonHiveController().refresh();
-          turn++;
         }
       });
     }

@@ -15,6 +15,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
+import java.util.function.IntToDoubleFunction;
+
 public class BossSword extends GameObject implements Updatable, Collidable {
 
   private final Image sprite;
@@ -102,7 +104,7 @@ public class BossSword extends GameObject implements Updatable, Collidable {
   @Override
   public void fixedUpdate(RenderProperties properties) {
     if(!started) return;
-    double speed = 500;
+    double speed = 800;
     Vector2 movement = direction.getNormalized().mult(speed * properties.getFixedDeltaTime());
     setPosition(Utility.clamp(getPosition().getX() + movement.getX(), 0, GameScene.WIDTH - getSize().getX()),
         Utility.clamp(getPosition().getY() + movement.getY(), 0, GameScene.HEIGHT - getSize().getY() - 20));

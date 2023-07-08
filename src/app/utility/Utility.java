@@ -3,6 +3,9 @@ package app.utility;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import app.main.controller.GameController;
 
@@ -13,7 +16,7 @@ public class Utility {
     return s.nextLine();
   }
 
-  public static void debug(String text) {
+  public static void debug(Object text) {
     GameController controller = GameController.getInstance();
     if (controller.isDebug()) {
       System.out.println(text);
@@ -21,7 +24,11 @@ public class Utility {
   }
 
   public static void delayAction(int millis, TimerTask action) {
-    new Timer().schedule(action, millis);
+//    Timer timer = new Timer();
+//    timer.schedule(action, millis);
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    executor.schedule(action, millis, TimeUnit.MILLISECONDS);
+    executor.shutdown();
   }
 
   public static void pressEnter() {

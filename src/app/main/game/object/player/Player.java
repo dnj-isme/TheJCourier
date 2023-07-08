@@ -100,7 +100,7 @@ public class Player extends GameObject implements Updatable, Collidable {
   // Movement constants
   private double gravity = 3000;
   private double maxGlideFall = 160;
-  private double moveSpeed = 400;
+  private double moveSpeed = 300;
   private double jumpForce = 750;
   private double smallJumpForce = 500;
 
@@ -126,9 +126,16 @@ public class Player extends GameObject implements Updatable, Collidable {
 
   public static Vector2 SIZE = new Vector2(24, 40);
 
+  private int lastShuriken = 5;
+
+  public void restoreShuriken() {
+    shuriken = lastShuriken;
+    lastShuriken = 5;
+  }
   public void reset(GameScene owner) {
     setLayer(ObjectLayer.Player);
     health = 8;
+    lastShuriken = shuriken;
     shuriken = 5;
     glide = false;
     invincible = false;
@@ -640,9 +647,52 @@ public class Player extends GameObject implements Updatable, Collidable {
       }
     }
 
+    if (eventObserver.isPressing(keyBinding.getBinding(KeyBinding.SHURIKEN)) && !freezeInput) {
+      if (!glide && shuriken > 0 && releaseShuriken) {
+        pool.deploy(this);
+        shuriken--;
+        if (startRecharge == -1) {
+          startRecharge = getOwner().getTimeSpent();
+        }
+        releaseShuriken = false;
+      }
+    } else {
+      releaseShuriken = true;
+    }
+
+    if (startRecharge != -1 && getOwner().getTimeSpent() - startRecharge >= 10_000) {
+      shuriken++;
+      Platform.runLater(() -> {
+        AudioFactory.createSfxHandler(assets.findAudio("sfx_shuriken_pickup")).playThenDestroy();
+      });
+
+      if (shuriken == 5) {
+        startRecharge = -1;
+      } else {
+        startRecharge += 10_000;
+      }
+    }
+
+    if (eventObserver.isPressing(keyBinding.getBinding(KeyBinding.TELEPORT))) {
+      if (teleport && !isTouchingGround() && releaseTeleport && !glide) {
+        teleport = false;
+        releaseTeleport = false;
+        getPosition().addX(facing.getX() * teleportDistance);
+        velocity.setY(0);
+        teleportLocation = getPosition().copy().add(getSize().getX() / 2, getSize().getY() / 2);
+        radius = 25;
+      }
+    } else {
+      releaseTeleport = true;
+    }
+
+
+    PlayerInputState currentState = getCurrentState();
+    if(getOwner().isDead() && currentState != PlayerInputState.Dead) return;
+
     PlayerState to = PlayerIdleState.load(this);
 
-    switch (getCurrentState()) {
+    switch (currentState) {
     case Spawned:
       to = PlayerSpawnedState.load(this);
       break;
@@ -686,44 +736,6 @@ public class Player extends GameObject implements Updatable, Collidable {
     }
     handlePositioning(state, to);
 
-    if (eventObserver.isPressing(keyBinding.getBinding(KeyBinding.SHURIKEN)) && !freezeInput) {
-      if (!glide && shuriken > 0 && releaseShuriken) {
-        pool.deploy(this);
-        shuriken--;
-        if (startRecharge == -1) {
-          startRecharge = getOwner().getTimeSpent();
-        }
-        releaseShuriken = false;
-      }
-    } else {
-      releaseShuriken = true;
-    }
-
-    if (startRecharge != -1 && getOwner().getTimeSpent() - startRecharge >= 10_000) {
-      shuriken++;
-      Platform.runLater(() -> {
-        AudioFactory.createSfxHandler(assets.findAudio("sfx_shuriken_pickup")).playThenDestroy();
-      });
-
-      if (shuriken == 5) {
-        startRecharge = -1;
-      } else {
-        startRecharge += 10_000;
-      }
-    }
-
-    if (eventObserver.isPressing(keyBinding.getBinding(KeyBinding.TELEPORT))) {
-      if (teleport && !isTouchingGround() && releaseTeleport && !glide) {
-        teleport = false;
-        releaseTeleport = false;
-        getPosition().addX(facing.getX() * teleportDistance);
-        velocity.setY(0);
-        teleportLocation = getPosition().copy().add(getSize().getX() / 2, getSize().getY() / 2);
-        radius = 25;
-      }
-    } else {
-      releaseTeleport = true;
-    }
     state = to;
     state.update(properties);
   }

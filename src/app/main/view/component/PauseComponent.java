@@ -140,19 +140,16 @@ public class PauseComponent extends BorderPane implements Component {
 
   private void applyButtonStyle(Button button, Font font) {
     AssetManager manager = AssetManager.getInstance();
-    String defaultStyle = "-fx-background-color: transparent; " + "-fx-border-width: 3px; " + "-fx-border-radius: 5px; "
-        + "-fx-text-fill: white; ";
+    String defaultStyle = "-fx-background-color: transparent; " + "-fx-border-width: 3px; "
+            + "-fx-border-radius: 5px; " + "-fx-text-fill: white; ";
     button.setFont(font);
     button.setStyle(defaultStyle + "-fx-border-color: transparent;");
-    button.focusedProperty().addListener((obs, oldVal, newVal) -> {
-      button.setStyle(defaultStyle + (newVal ? "-fx-border-color: #fcdc80;" : "-fx-border-color: transparent;"));
-    });
     button.hoverProperty().addListener((obs, oldVal, newVal) -> {
-      if (newVal) {
-        button.requestFocus();
+      if (newVal && !oldVal) {
         AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_cursor_8")).playThenDestroy();
+        button.setStyle(defaultStyle + "-fx-border-color: #fcdc80;");
       } else {
-        button.getParent().requestFocus();
+        button.setStyle(defaultStyle + "-fx-border-color: transparent;");
       }
     });
   }

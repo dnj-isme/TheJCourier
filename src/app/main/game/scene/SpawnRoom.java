@@ -8,11 +8,7 @@ import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.boss.BossPlaceholder;
-import app.main.game.object.other.Background;
-import app.main.game.object.other.DemonHiveController;
-import app.main.game.object.other.FloorTile;
-import app.main.game.object.other.Gate;
-import app.main.game.object.other.Lantern;
+import app.main.game.object.other.*;
 import app.main.game.object.other.DemonHiveController.HiveTag;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.shuriken.ShurikenPool;
@@ -69,7 +65,6 @@ public class SpawnRoom extends GameScene {
     
     addFloor();
     addForeground();
-    addBackground();
   }
   
   private void addForeground() {
@@ -77,22 +72,33 @@ public class SpawnRoom extends GameScene {
     Lantern left = new Lantern(this);
     Lantern right = new Lantern(this);
     
-    double y = (GameScene.HEIGHT - 20) - 120;
+    double y = (GameScene.HEIGHT - 20) - 150;
     double distance = 100;
     left.setPosition(GameScene.WIDTH / 2 - distance - left.getSize().getX() / 2, y);
     right.setPosition(GameScene.WIDTH / 2 + distance - right.getSize().getX() / 2, y);
     
     gate = new Gate(this);
     gate.setPosition(GameScene.WIDTH/2 - gate.getSize().getX()/2, GameScene.HEIGHT - gate.getSize().getY());
-    
+
+    double yFront = GameScene.HEIGHT - 70;
+    double yStatue1 = GameScene.HEIGHT - 140;
+    double yStatue2 = GameScene.HEIGHT - 120;
+
+    addGameObject(new Foreground1(this, 40, yFront));
+    addGameObject(new Foreground1(this, 120, yFront));
+    addGameObject(new Foreground2(this, 500, yFront));
+    addGameObject(new Foreground2(this, 350, yFront));
+//    addGameObject(new Statue1(this, (GameScene.WIDTH - 100) / 2 + 80, yStatue2, false));
+//    addGameObject(new Statue2(this, (GameScene.WIDTH - 80) / 2 + 80, yStatue2, false));
+    addGameObject(new Statue2(this, (GameScene.WIDTH - 80) / 2 + 100, yStatue2, false));
+    addGameObject(new Statue2(this, (GameScene.WIDTH - 80) / 2 - 100, yStatue2, true));
+    addGameObject(new Statue1(this, (GameScene.WIDTH - 100) / 2 + 200, yStatue1, false));
+    addGameObject(new Statue1(this, (GameScene.WIDTH - 100) / 2 - 200, yStatue1, true));
+
     addEnemyEntity(left);
     addEnemyEntity(right);
     addGameObject(gate);
     addGameObject(new Background(this));
-  }
-  
-  private void addBackground() {
-    
   }
   
   private void addFloor() {
@@ -115,7 +121,6 @@ public class SpawnRoom extends GameScene {
   @Override
   public void performGameLogic(RenderProperties properties) {
     if(!started && gate.collides(player) && observer.isPressing(binding.getBinding(KeyBinding.INTERACT))) {
-      System.out.println("HEYOOO");
       started = true;
       player.setSpawn(true);
       player.setReverseSpawn(true);

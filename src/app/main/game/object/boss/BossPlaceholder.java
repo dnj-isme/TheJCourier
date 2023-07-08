@@ -25,7 +25,7 @@ public class BossPlaceholder extends GameObject implements Collidable {
   public BossPlaceholder(GameScene owner) {
     super(owner);
     
-    setLayer(ObjectLayer.Foreground);
+    setLayer(ObjectLayer.Player);
     setTag(ObjectTag.Enemy);
     setSize(30, 65);
     
@@ -73,6 +73,5 @@ public class BossPlaceholder extends GameObject implements Collidable {
   }
   
   private void receiveDamage() {
-    System.out.println("The boss receives damage from Player");
   }
 }

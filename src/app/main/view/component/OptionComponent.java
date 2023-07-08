@@ -6,6 +6,7 @@ import app.main.controller.asset.FontManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.audio.AudioHandler;
 import app.utility.Utility;
+import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -27,6 +28,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 public class OptionComponent extends BorderPane implements Component {
     private EventHandler<ActionEvent> onBackEvent;
@@ -114,7 +116,7 @@ public class OptionComponent extends BorderPane implements Component {
 
         musicSlider.setOnMouseReleased((e) -> {
             if (player.getStatus() == Status.PLAYING) {
-                player.stop();
+                musicHandler.stop();
             }
         });
 
@@ -172,16 +174,12 @@ public class OptionComponent extends BorderPane implements Component {
                 + "-fx-border-radius: 5px; " + "-fx-text-fill: white; ";
         button.setFont(font);
         button.setStyle(defaultStyle + "-fx-border-color: transparent;");
-        button.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            button.setStyle(
-                    defaultStyle + (newVal ? "-fx-border-color: #fcdc80;" : "-fx-border-color: transparent;"));
-        });
         button.hoverProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) {
-                button.requestFocus();
+            if (newVal && !oldVal) {
                 AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_cursor_8")).playThenDestroy();
+                button.setStyle(defaultStyle + "-fx-border-color: #fcdc80;");
             } else {
-                button.getParent().requestFocus();
+                button.setStyle(defaultStyle + "-fx-border-color: transparent;");
             }
         });
     }

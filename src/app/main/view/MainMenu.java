@@ -15,21 +15,17 @@ import app.main.view.game.DeveloperScene;
 import app.main.view.game.SpawnScene;
 import app.utility.SceneTemplate;
 import app.utility.Utility;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 public class MainMenu extends SceneTemplate {
 
@@ -95,31 +91,22 @@ public class MainMenu extends SceneTemplate {
     applyButtonStyle(quitBtn, font);
     center.setSpacing(10);
   }
-  
+
   private void applyButtonStyle(Button button, Font font) {
-    String defaultStyle = "-fx-background-color: transparent; "
-        + "-fx-border-width: 3px; "
-        + "-fx-border-radius: 5px; "
-        + "-fx-text-fill: white; ";
+    AssetManager manager = AssetManager.getInstance();
+    String defaultStyle = "-fx-background-color: transparent; " + "-fx-border-width: 3px; "
+            + "-fx-border-radius: 5px; " + "-fx-text-fill: white; ";
     button.setFont(font);
     button.setStyle(defaultStyle + "-fx-border-color: transparent;");
-    button.focusedProperty().addListener((obs, oldVal, newVal)-> {
-      button.setStyle(defaultStyle + (newVal ? "-fx-border-color: #fcdc80;" : "-fx-border-color: transparent;"));
-      
-      if(newVal) {        
-        AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_cursor_8")).playThenDestroy();
-      }
-    });
     button.hoverProperty().addListener((obs, oldVal, newVal) -> {
-      if(newVal) {
-        button.requestFocus();
-      }
-      else {
-        base.requestFocus();
+      if (newVal && !oldVal) {
+        AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_cursor_8")).playThenDestroy();
+        button.setStyle(defaultStyle + "-fx-border-color: #fcdc80;");
+      } else {
+        button.setStyle(defaultStyle + "-fx-border-color: transparent;");
       }
     });
   }
-
   private boolean pressSomething = false;
 
   @Override
@@ -138,7 +125,7 @@ public class MainMenu extends SceneTemplate {
       if(!pressSomething) {
         AudioFactory.createSfxHandler(manager.findAudio("sfx_game_start")).playThenDestroy();
         pressSomething = true;
-        controller.switchScene(new MainMenu(), 500);
+        controller.switchScene(new HighScoreMenu(), 500);
       }
     });
 

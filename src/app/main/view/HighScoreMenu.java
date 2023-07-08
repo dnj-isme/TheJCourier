@@ -9,6 +9,7 @@ import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
 import app.main.model.HighScoreRecord;
 import app.utility.SceneTemplate;
+import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -19,6 +20,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 import java.util.List;
 
@@ -164,16 +166,12 @@ public class HighScoreMenu extends SceneTemplate {
                 + "-fx-border-radius: 5px; " + "-fx-text-fill: white; ";
         button.setFont(font);
         button.setStyle(defaultStyle + "-fx-border-color: transparent;");
-        button.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            button.setStyle(
-                    defaultStyle + (newVal ? "-fx-border-color: #fcdc80;" : "-fx-border-color: transparent;"));
-        });
         button.hoverProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) {
-                button.requestFocus();
+            if (newVal && !oldVal) {
                 AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_cursor_8")).playThenDestroy();
+                button.setStyle(defaultStyle + "-fx-border-color: #fcdc80;");
             } else {
-                button.getParent().requestFocus();
+                button.setStyle(defaultStyle + "-fx-border-color: transparent;");
             }
         });
     }

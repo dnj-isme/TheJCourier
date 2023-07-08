@@ -1,11 +1,10 @@
 package app.utility.canvas;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Vector;
+import java.util.*;
 
 import app.main.controller.GameController;
 import app.main.controller.scene.SceneController;
+import app.utility.Utility;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -152,10 +151,10 @@ public abstract class GameScene {
 
     performGameLogic(new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount));
 
-    double timeSinceLastFixedUpdate = current - lastFrameTime;
-    while (timeSinceLastFixedUpdate >= fixedDeltaTime) {
-      notifyFixedUpdate(deltaTime);
-      timeSinceLastFixedUpdate -= fixedDeltaTime;
+    double timeSinceLastUpdateMovement = current - lastFrameTime;
+    while (timeSinceLastUpdateMovement >= fixedDeltaTime) {
+      notifyUpdateMovement(deltaTime);
+      timeSinceLastUpdateMovement -= fixedDeltaTime;
     }
 
     notifyUpdate(deltaTime);
@@ -194,7 +193,7 @@ public abstract class GameScene {
     }
   }
 
-  private void notifyFixedUpdate(double deltaTime) {
+  private void notifyUpdateMovement(double deltaTime) {
     RenderProperties prop = new RenderProperties(context, deltaTime, fixedDeltaTime, frameCount);
     RenderProperties deadProp = new RenderProperties(context, 0, 0, startDead);
 
@@ -239,7 +238,24 @@ public abstract class GameScene {
 
   public void start() {
 //    gameObjects.sort(Comparator.comparingInt(a -> a.getLayer().getIndex()));
-    gameObjects.sort((a, b) -> a.getLayer().getIndex() - b.getLayer().getIndex());
+    gameObjects.sort(Comparator.comparingInt(a -> a.getLayer().getIndex()));
+    Set<Object> uniqueObjects = new HashSet<>();
+
+    Iterator<GameObject> iterator = gameObjects.iterator();
+
+    while (iterator.hasNext()) {
+      Object obj = iterator.next();
+      if (uniqueObjects.contains(obj)) {
+        iterator.remove();
+      } else {
+        uniqueObjects.add(obj);
+      }
+    }
+
+    Utility.debug("Class = " + getClass().toGenericString());
+    for(int i =0; i < gameObjects.size(); i++) {
+      Utility.debug(String.format("%d. %s, %s",i + 1, gameObjects.get(i).getLayer().toString(), gameObjects.get(i).getClass().toGenericString()));
+    }
     animationTimer.start();
   }
 

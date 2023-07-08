@@ -166,6 +166,7 @@ public class KeyBindingComponent extends BorderPane implements Component {
 
     backBtn.setOnAction((e) -> {
       if (onBackEvent != null) {
+        refreshText();
         onBackEvent.handle(e);
       }
     });

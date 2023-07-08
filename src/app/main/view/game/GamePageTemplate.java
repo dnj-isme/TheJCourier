@@ -1,8 +1,5 @@
 package app.main.view.game;
 
-
-import java.util.TimerTask;
-
 import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
@@ -68,7 +65,6 @@ public abstract class GamePageTemplate extends SceneTemplate{
       base.getChildren().remove(pauseComponent);
       gameScene.resume();
       handleResume();
-      SceneController.getInstance().getScene();
     });
     pauseComponent.setOnOptionsEvent((e) -> {
       AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_select_8")).playThenDestroy();
@@ -78,6 +74,7 @@ public abstract class GamePageTemplate extends SceneTemplate{
     
     pauseComponent.setOnTitleEvent((e) -> {
       AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_select_8")).playThenDestroy();
+      handleStop();
       SceneController.getInstance().switchScene(new MainMenu());
       gameScene.stop();
     });
@@ -100,7 +97,8 @@ public abstract class GamePageTemplate extends SceneTemplate{
       base.getChildren().add(optionComponent);
     });
   }
-  
+
+
   @Override
   public void handleSceneKeyChanges(SceneEventObserver sceneEventObserver) {
     if(!gameScene.isDead() && sceneEventObserver.isPressing(keyBinding.getBinding(KeyBinding.PAUSE)) && !gameScene.isPaused()) {
@@ -123,4 +121,5 @@ public abstract class GamePageTemplate extends SceneTemplate{
 
   public abstract void handlePause();
   public abstract void handleResume();
+  protected abstract void handleStop();
 }

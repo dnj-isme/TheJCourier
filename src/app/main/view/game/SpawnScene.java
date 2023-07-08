@@ -2,8 +2,10 @@ package app.main.view.game;
 
 import java.util.TimerTask;
 
+import app.main.controller.GameController;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
+import app.main.controller.audio.AudioHandler;
 import app.main.controller.scene.SceneController;
 import app.main.game.scene.SpawnRoom;
 import app.utility.Utility;
@@ -18,18 +20,21 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class SpawnScene extends GamePageTemplate{
-  private MediaPlayer introMusic;
-  private MediaPlayer loopMusic;
+  private GameController controller;
+  private AudioHandler introMusic;
+  private AudioHandler loopMusic;
   private boolean loopMode = false;
   
   public SpawnScene() {
     super(new SpawnRoom());
+    controller = GameController.getInstance();
     getBase().setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
     AssetManager asset = AssetManager.getInstance();
-    introMusic = AudioFactory.createMusicHandler(asset.findAudio("bgm_intro"), false).getPlayer();
-    loopMusic = AudioFactory.createMusicHandler(asset.findAudio("bgm_main"), true).getPlayer();
-    introMusic.setOnEndOfMedia(() -> {
+    introMusic = AudioFactory.createMusicHandler(asset.findAudio("bgm_intro"), false);
+    loopMusic = AudioFactory.createMusicHandler(asset.findAudio("bgm_main"), true);
+    introMusic.getPlayer().setOnEndOfMedia(() -> {
       loopMusic.play();
+      introMusic.stop();
       loopMode = true;
     });
     Utility.delayAction(1000, new TimerTask() {
@@ -59,26 +64,31 @@ public class SpawnScene extends GamePageTemplate{
   
   public void handleStop() {
     Platform.runLater(() -> {
-      for(double volume = loopMusic.getVolume(); volume >= 0.01; volume /= 1.5) {
-        introMusic.setVolume(volume);
-        loopMusic.setVolume(volume);
-        System.out.println(volume);
-        try {
-          Thread.sleep(20);
-        } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
+      for(double volume = loopMusic.getPlayer().getVolume(); volume >= 0.01; volume /= 1.5) {
+		if(introMusic.getPlayer() != null) {
+			introMusic.getPlayer().setVolume(volume);
+		}
+		loopMusic.getPlayer().setVolume(volume);
+		try {
+		  Thread.sleep(20);
+		} catch (InterruptedException e) {
+		  // TODO Auto-generated catch block
+		  e.printStackTrace();
+		}
       }
-      introMusic.setVolume(0);
-      loopMusic.setVolume(0);
+	  if(introMusic.getPlayer() != null) {
+    	  introMusic.getPlayer().setVolume(0);
+          introMusic.stop();
+      }
+      loopMusic.getPlayer().setVolume(0);
       loopMusic.stop();
-      introMusic.stop();
     });
   }
 
   @Override
   public void handleResume() {
+    loopMusic.getPlayer().setVolume(controller.getMusic());
+    introMusic.getPlayer().setVolume(controller.getMusic());
     if(loopMode) {
       loopMusic.play();
     }

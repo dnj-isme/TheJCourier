@@ -41,7 +41,6 @@ public class Boss extends GameObject implements Updatable, Collidable, Hittable{
 
   public Boss(GameScene owner) {
     super(owner);
-    setLayer(ObjectLayer.VFX);
     setTag(ObjectTag.Enemy);
     gameController = GameController.getInstance();
     setSize(35, 60);
@@ -73,7 +72,7 @@ public class Boss extends GameObject implements Updatable, Collidable, Hittable{
     sword2.reset(owner);
     first = true;
     fire.reset(owner);
-    hp = 1;
+    hp = 100;
   }
 
   private int hp = 100;
@@ -168,7 +167,6 @@ public class Boss extends GameObject implements Updatable, Collidable, Hittable{
       if(startDeadFrame == -1) {
         startDeadPos = getPosition().copy();
         startDeadFrame = properties.getFrameCount();
-        System.out.println(properties.getFrameCount());
       }
       Vector2 renderPos = Vector2.renderBottomCenter(getPosition(), getSize(), new Vector2(120, 120));
       context.drawImage(bossDead, renderPos.getX(), renderPos.getY());
@@ -210,7 +208,6 @@ public class Boss extends GameObject implements Updatable, Collidable, Hittable{
   }
   
   private void receiveDamage() {
-    System.out.println("The boss receives damage from Player");
     hp--;
   }
 

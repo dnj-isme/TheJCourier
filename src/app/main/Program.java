@@ -18,6 +18,7 @@ import app.main.view.game.DeveloperScene;
 import app.main.view.game.GamePageTemplate;
 import app.main.view.game.SpawnScene;
 import app.utility.Utility;
+import app.utility.database.DBConnect;
 import javafx.application.Application;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
@@ -28,6 +29,10 @@ public class Program extends Application {
     boolean debug = false;
     boolean invincible = false;
     boolean hitbox = false;
+    
+    for(int i = 0; i < args.length; i++) {
+    	System.out.println(args[i]);
+    }	
 
     if (args.length > 0) {
       String mode = args[0];

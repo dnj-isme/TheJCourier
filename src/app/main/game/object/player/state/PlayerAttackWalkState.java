@@ -12,6 +12,7 @@ import app.utility.canvas.Vector2;
 import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 
 public class PlayerAttackWalkState extends PlayerState{
 
@@ -68,7 +69,7 @@ public class PlayerAttackWalkState extends PlayerState{
     
     int xTop = (int) (index * imageSizeTop.getX());
     
-    Vector2 facing = updatePlayerDirection();
+    Vector2 facing = player.getFacing();
     if(facing.getX() < 0) {
       renderBottomPos.setX(renderBottomPos.getX() + 60);
       renderTopPos.setX(renderTopPos.getX() + 80);
@@ -85,7 +86,7 @@ public class PlayerAttackWalkState extends PlayerState{
   public void update(RenderProperties properties) {
     // TODO Auto-generated method stub
     hanldeHorizontalMovement();
-    
+
     if (player.getStartAttackFrame() == -1) {
       player.setStartAttackFrame(properties.getFrameCount());
       player.setAttack(true);
@@ -107,6 +108,6 @@ public class PlayerAttackWalkState extends PlayerState{
   @Override
   public void fixedUpdate(RenderProperties properties) {
     // TODO Auto-generated method stub
-    
+
   }
 }

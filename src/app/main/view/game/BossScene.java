@@ -49,13 +49,14 @@ public class BossScene extends GamePageTemplate {
     loopMusic = AudioFactory.createMusicHandler(asset.findAudio("bgm_boss"), true);
     introMusic.getPlayer().setOnEndOfMedia(() -> {
       loopMusic.play();
+      introMusic.stop();
       loopMode = true;
     });
 
     AudioFactory.createSfxHandler(asset.findAudio("sfx_boss_laff")).playThenDestroy();
     Player.getInstance(getGameScene()).setOnDead(() -> {
-      loopMusic.getPlayer().stop();
-      introMusic.getPlayer().stop();
+      loopMusic.stop();
+      introMusic.stop();
     });
 
     Platform.runLater(() -> {
@@ -89,7 +90,6 @@ public class BossScene extends GamePageTemplate {
     } else {
       introMusic.pause();
     }
-    System.out.println(room.getTimeSpentFormat());
   }
 
   @Override
@@ -102,14 +102,20 @@ public class BossScene extends GamePageTemplate {
   }
 
   @Override
+  protected void handleStop() {
+    loopMusic.stop();
+    introMusic.stop();
+  }
+
+  @Override
   public void handleSceneKeyChanges(SceneEventObserver sceneEventObserver) {
     super.handleSceneKeyChanges(sceneEventObserver);
-    if(sceneEventObserver.isPressing(KeyCode.P)) {
-      paused = true;
-      end = true;
-      Player.getInstance(getGameScene()).setDead();
-      Player.getInstance(getGameScene()).getOnDead().run();
-    }
+//    if(sceneEventObserver.isPressing(KeyCode.P) {
+//      paused = true;
+//      end = true;
+//      Player.getInstance(getGameScene()).setDead();
+//      Player.getInstance(getGameScene()).getOnDead().run();
+//    }
     if(sceneEventObserver.isPressing(KeyBinding.getIntance().getBinding(KeyBinding.PAUSE)) && win) {
       room.stop();
       SceneController.getInstance().switchScene(new YouWinMenu());

@@ -19,7 +19,7 @@ import javafx.scene.paint.Color;
 
 public class Lantern extends GameObject implements Collidable, Updatable, Hittable {
 
-  private static Vector2 SIZE = new Vector2(32, 32);
+  private static Vector2 SIZE = new Vector2(40, 40);
   private Image sprite;
   private Vector2 imageSize;
   private GameController controller;
@@ -46,10 +46,12 @@ public class Lantern extends GameObject implements Collidable, Updatable, Hittab
 
     int spriteX = index * 40;
 
-    context.setFill(Color.RED);
-    context.fillRect(renderPos.getX(), renderPos.getY(), getSize().getX(), getSize().getY());
+    if(controller.isHitbox()) {
+      context.setFill(Color.RED);
+      context.fillRect(renderPos.getX(), renderPos.getY(), getSize().getX(), getSize().getY());
+    }
 
-    context.drawImage(sprite, spriteX, 40, imageSize.getX(), imageSize.getY(), renderPos.getX(),
+    context.drawImage(sprite, spriteX, 0, imageSize.getX(), imageSize.getY(), renderPos.getX(),
         renderPos.getY(), getSize().getX(), getSize().getY());
   }
 

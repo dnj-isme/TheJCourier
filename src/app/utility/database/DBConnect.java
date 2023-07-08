@@ -1,9 +1,8 @@
 package app.utility.database;
 
-import app.utility.Message;
-import javafx.scene.control.Alert;
-
 import java.sql.*;
+import java.nio.file.*;
+import java.io.*;
 
 public class DBConnect {
     private final String USERNAME = "root";
@@ -25,16 +24,48 @@ public class DBConnect {
     }
     
     private DBConnect() {
+        boolean success = initializeConnection();
+        if (!success) {
+            runMigrationScript();
+            if (!initializeConnection()) {
+                System.out.println("Database Error!!\nUnable to initialize the database even after running the migration script");
+                System.exit(1);
+            }
+        }
+    }
+    
+    private boolean initializeConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(CONNECTION, USERNAME, PASSWORD);
             statement = connection.createStatement();
+            return true;
         } catch (Exception e) {
-            System.out.println("Database Error!!\nPlease Create 'TheJCourier' database with the specified schematic first");
-            System.exit(1);
+            return false;
         }
     }
-    
+
+    private void runMigrationScript() {
+        String os = System.getProperty("os.name").toLowerCase();
+        String scriptPath = System.getProperty("user.dir") + (os.contains("win") ? "\\migration\\migration.bat" : "\\migration\\migration.sh");
+
+        try {
+            Process process;
+            if (os.contains("win")) {
+                process = Runtime.getRuntime().exec("cmd /c start " + scriptPath);
+            } else {
+                process = Runtime.getRuntime().exec("./" + scriptPath);
+            }
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.out.println("Error in running the migration script.");
+            }
+            Thread.sleep(3000);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public ResultSet executeQuery(String query) {
         ResultSet rs = null;
         
@@ -60,7 +91,6 @@ public class DBConnect {
         try {
             ps = connection.prepareStatement(query);
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return ps;

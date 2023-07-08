@@ -74,6 +74,7 @@ public class PlayerAttackState extends PlayerState {
 
   @Override
   public void update(RenderProperties properties) {
+    hanldeHorizontalMovement();
     if (player.getStartAttackFrame() == -1) {
       player.setStartAttackFrame(properties.getFrameCount());
       player.addAttackCount();

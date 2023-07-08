@@ -14,6 +14,10 @@ public class AudioHandler {
 
   public void playThenDestroy() {
     player.play();
+    player.setOnEndOfMedia(() -> {
+      player.stop();
+      player.dispose();
+    });
   }
 
   public void play() {
@@ -36,6 +40,14 @@ public class AudioHandler {
   
   public void resume() {
     player.play();
+  }
+
+  private boolean disposed = false;
+  public void stop() {
+    if(player != null) {
+      player.stop();
+      player.dispose();
+    }
   }
 
   public boolean isLoop() {

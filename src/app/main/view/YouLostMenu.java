@@ -205,22 +205,18 @@ public class YouLostMenu extends SceneTemplate {
   }
 
   private void applyButtonStyle(Button button, Font font) {
-      AssetManager manager = AssetManager.getInstance();
-      String defaultStyle = "-fx-background-color: transparent; " + "-fx-border-width: 3px; "
-              + "-fx-border-radius: 5px; " + "-fx-text-fill: white; ";
-      button.setFont(font);
-      button.setStyle(defaultStyle + "-fx-border-color: transparent;");
-      button.focusedProperty().addListener((obs, oldVal, newVal) -> {
-          button.setStyle(
-                  defaultStyle + (newVal ? "-fx-border-color: #fcdc80;" : "-fx-border-color: transparent;"));
-      });
-      button.hoverProperty().addListener((obs, oldVal, newVal) -> {
-          if (newVal) {
-              button.requestFocus();
-              AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_cursor_16")).playThenDestroy();
-          } else {
-              button.getParent().requestFocus();
-          }
-      });
+    AssetManager manager = AssetManager.getInstance();
+    String defaultStyle = "-fx-background-color: transparent; " + "-fx-border-width: 3px; "
+            + "-fx-border-radius: 5px; " + "-fx-text-fill: white; ";
+    button.setFont(font);
+    button.setStyle(defaultStyle + "-fx-border-color: transparent;");
+    button.hoverProperty().addListener((obs, oldVal, newVal) -> {
+      if (newVal && !oldVal) {
+        AudioFactory.createSfxHandler(manager.findAudio("sfx_menu_cursor_8")).playThenDestroy();
+        button.setStyle(defaultStyle + "-fx-border-color: #fcdc80;");
+      } else {
+        button.setStyle(defaultStyle + "-fx-border-color: transparent;");
+      }
+    });
   }
 }

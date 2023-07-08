@@ -109,7 +109,7 @@ public class BossGroundFire extends GameObject implements Collidable, Updatable 
             }
         }
 
-        xPos = index > 3 ? 50 : 0;
+        xPos = (index % 4) * 50;
         Image leftSword = index < 4 ? leftSwordBurnStart : leftSwordBurnLoop;
         Image rightSword = index < 4 ? rightSwordBurnStart : rightSwordBurnLoop;
         Vector2 size40 = Vector2.square(40);

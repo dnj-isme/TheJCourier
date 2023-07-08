@@ -59,4 +59,8 @@ public class DeveloperScene extends GamePageTemplate{
     // TODO Auto-generated method stub
     
   }
+
+  @Override
+  protected void handleStop() {
+  }
 }

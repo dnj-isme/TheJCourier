@@ -135,6 +135,14 @@ public final class AssetManager {
     imageCollection.put("left_sword_burn_start", loadImage("assets/sprite/boss/left_sword_burn_start.png"));
     imageCollection.put("right_sword_burn_loop", loadImage("assets/sprite/boss/right_sword_burn_loop.png"));
     imageCollection.put("right_sword_burn_start", loadImage("assets/sprite/boss/right_sword_burn_start.png"));
+
+    // Environment
+    imageCollection.put("statue1", loadImage("assets/sprite/scene/Underworld_16_BackAsset01.png"));
+    imageCollection.put("statue2", loadImage("assets/sprite/scene/Underworld_16_BackAsset02.png"));
+    imageCollection.put("pile", loadImage("assets/sprite/scene/Underworld_16_BackAsset11.png"));
+    imageCollection.put("throne", loadImage("assets/sprite/scene/Underworld_16_BackAsset12.png"));
+    imageCollection.put("foreground1", loadImage("assets/sprite/scene/Underworld_16_GroundAsset06.png"));
+    imageCollection.put("foreground2", loadImage("assets/sprite/scene/Underworld_16_GroundAsset07.png"));
     // [END]
 
     Utility.debug("Finished Loading Images");

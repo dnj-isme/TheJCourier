@@ -270,7 +270,6 @@ public class BossDash extends BossState{
       Vector2 playerPos = Player.getInstance(boss.getOwner()).getPosition();
       direction = playerPos.minus(boss.getPosition()).getNormalized();
     }
-    System.out.println(direction);
     this.startAnim = startAnim;
     AudioFactory.createSfxHandler(assets.findAudio("sfx_boss_dash")).playThenDestroy();
   }

@@ -11,22 +11,15 @@ import app.main.game.object.Hittable;
 import app.main.game.object.boss.Boss;
 import app.main.game.object.boss.BossSword;
 import app.main.game.object.boss.state.levitate.BossGroundFire;
-import app.main.game.object.other.DemonHiveController;
-import app.main.game.object.other.FloorTile;
+import app.main.game.object.other.*;
 import app.main.game.object.other.DemonHiveController.HiveTag;
-import app.main.game.object.other.YouWinUI;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.shuriken.Shuriken;
 import app.main.game.object.player.shuriken.ShurikenPool;
 import app.main.game.object.player.swing.PlayerGlideSwing;
 import app.main.game.object.player.swing.PlayerSwing;
 import app.utility.Utility;
-import app.utility.canvas.Collidable;
-import app.utility.canvas.GameObject;
-import app.utility.canvas.GameScene;
-import app.utility.canvas.ObjectTag;
-import app.utility.canvas.RenderProperties;
-import app.utility.canvas.Vector2;
+import app.utility.canvas.*;
 import javafx.application.Platform;
 
 public class BossRoom extends GameScene {
@@ -86,22 +79,22 @@ public class BossRoom extends GameScene {
     pool = player.getPool();
     player.setFloorHeight(20);
     player.setPosition(50, GameScene.HEIGHT - 20 - player.getSize().getY());
+    player.restoreShuriken();
     addGameObject(new YouWinUI(this));
-    addEnemyEntity(boss = Boss.getInstance(this));
+    boss = Boss.getInstance(this);
+    hive = boss.getDemonHiveController();
+    double centerX = (GameScene.WIDTH - 40) / 2;
+    double centerY = ((GameScene.HEIGHT - 20) / 2);
+    addEnemyEntity(boss);
     boss.reset(this);
     boss.setPosition(
         GameScene.WIDTH - boss.getSize().getX() - 100,
         GameScene.HEIGHT - boss.getSize().getY() - 20);
     boss.setFacing(Vector2.LEFT());
+    boss.setLayer(ObjectLayer.Player);
     addEnemyEntity(sword1 = boss.getSword1());
     addEnemyEntity(sword2 = boss.getSword2());
     addEnemyEntity(fire = boss.getFire());
-
-    hive = boss.getDemonHiveController();
-    double centerX = (GameScene.WIDTH - 40) / 2;
-    double centerY = ((GameScene.HEIGHT - 20) / 2);
-    
-    System.out.println(new Vector2(centerX, centerY));
     
     int diff = 60;
     hive.add(new Vector2(centerX, centerY), HiveTag.E);
@@ -123,7 +116,23 @@ public class BossRoom extends GameScene {
     addFloor();
     addForeground();
     addBackground();
+    addGameObject(new Background(this));
     addGameObject(youWinUI = new YouWinUI(this));
+
+    double yFront = GameScene.HEIGHT - 70;
+    double yStatue1 = GameScene.HEIGHT - 140;
+    double yStatue2 = GameScene.HEIGHT - 120;
+
+    addGameObject(new Foreground1(this, 40, yFront));
+    addGameObject(new Foreground1(this, 120, yFront));
+    addGameObject(new Foreground2(this, 500, yFront));
+    addGameObject(new Foreground2(this, 120, yFront));
+    addGameObject(new Foreground2(this, 350, yFront));
+    addGameObject(new Throne(this, (GameScene.WIDTH - 120) / 2, yStatue1));
+    addGameObject(new Statue2(this, (GameScene.WIDTH - 80) / 2 + 120, yStatue2, false));
+    addGameObject(new Statue2(this, (GameScene.WIDTH - 80) / 2 - 120, yStatue2, true));
+    addGameObject(new Statue1(this, (GameScene.WIDTH - 100) / 2 + 250, yStatue1, false));
+    addGameObject(new Statue1(this, (GameScene.WIDTH - 100) / 2 - 250, yStatue1, true));
   }
 
   private void addForeground() {

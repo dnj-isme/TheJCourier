@@ -7,9 +7,8 @@ import app.main.controller.audio.AudioFactory;
 import app.main.game.object.Hittable;
 import app.main.game.object.boss.BossPlaceholder;
 import app.main.game.object.boss.BossSword;
-import app.main.game.object.other.DemonHiveController;
+import app.main.game.object.other.*;
 import app.main.game.object.other.DemonHiveController.HiveTag;
-import app.main.game.object.other.Lantern;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.shuriken.Shuriken;
 import app.main.game.object.player.shuriken.ShurikenPool;
@@ -63,8 +62,6 @@ public class DeveloperRoom extends GameScene {
     playerGlideSwing = player.getPlayerGlideSwing();
     pool = player.getPool();
     
-    System.out.println(pool == null);
-
     addEnemyEntity(placeholder = new BossPlaceholder(this));
     placeholder.setPosition(200, GameScene.HEIGHT - placeholder.getSize().getY());
 
@@ -80,10 +77,19 @@ public class DeveloperRoom extends GameScene {
     lantern1.setPosition(100, GameScene.HEIGHT - placeholder.getSize().getY() - 50);
     lantern2.setPosition(300, GameScene.HEIGHT - placeholder.getSize().getY() - 100);
 
+
+    addGameObject(new Statue1(this, 50, 50, false));
+    addGameObject(new Statue2(this, 200, 80, true));
+    addGameObject(new Throne(this, 200, 200));
+    addGameObject(new Pile(this, 600, 20));
+    addGameObject(new Foreground1(this, 0, 70));
+    addGameObject(new Foreground2 (this, 250, 70));
+
     demonHiveController.add(new Vector2(500, 300), HiveTag.A);
     demonHiveController.add(new Vector2(500, 200), HiveTag.B);
     demonHiveController.add(new Vector2(600, 300), HiveTag.C);
     demonHiveController.add(new Vector2(600, 200), HiveTag.B);
+
 
     enemyEntities.addAll(demonHiveController.getHives());
   }
