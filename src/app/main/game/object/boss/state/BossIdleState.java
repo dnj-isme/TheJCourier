@@ -5,7 +5,6 @@ import java.util.TimerTask;
 import app.main.controller.asset.AssetManager;
 import app.main.game.object.boss.Boss;
 import app.main.game.object.boss.BossState;
-import app.main.game.object.boss.state.dash.BossDash;
 import app.main.game.object.boss.state.dash.BossDashStart;
 import app.main.game.object.boss.state.levitate.BossLevitateStart;
 import app.utility.Utility;

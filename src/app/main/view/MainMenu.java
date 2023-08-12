@@ -1,5 +1,6 @@
 package app.main.view;
 
+import java.util.Optional;
 import java.util.TimerTask;
 
 import app.main.controller.GameController;
@@ -8,24 +9,26 @@ import app.main.controller.asset.FontManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
-import app.main.game.scene.SpawnRoom;
 import app.main.view.component.Copyright;
 import app.main.view.component.TopLogo;
 import app.main.view.game.DeveloperScene;
 import app.main.view.game.SpawnScene;
+import app.utility.Message;
 import app.utility.SceneTemplate;
 import app.utility.Utility;
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
 
 public class MainMenu extends SceneTemplate {
 
@@ -113,7 +116,7 @@ public class MainMenu extends SceneTemplate {
   public void eventHandling() {
     // TODO Auto-generated method stub
     playBtn.setOnAction((e) -> {
-      if(!pressSomething) {        
+      if(!pressSomething) {
         AudioFactory.createSfxHandler(manager.findAudio("sfx_game_start")).playThenDestroy();
         pressSomething = true;
         SceneTemplate target = GameController.getInstance().isDebug() ? new DeveloperScene() : new SpawnScene();

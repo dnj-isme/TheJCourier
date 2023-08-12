@@ -2,7 +2,6 @@ package app.main.game.object.boss.state.levitate;
 
 import app.main.controller.GameController;
 import app.main.controller.asset.AssetManager;
-import app.utility.Utility;
 import app.utility.canvas.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;

@@ -4,14 +4,7 @@ import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneEventObserver;
-import app.main.game.object.player.state.PlayerFallState;
-import app.main.game.object.player.state.PlayerIdleState;
-import app.main.game.object.player.state.PlayerJumpState;
-import app.main.game.object.player.state.PlayerWalkState;
-import app.utility.Utility;
 import app.utility.canvas.Drawable;
-import app.utility.canvas.GameScene;
-import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Updatable;
 import app.utility.canvas.Vector2;
 

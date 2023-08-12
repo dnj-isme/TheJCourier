@@ -5,8 +5,6 @@ import app.main.controller.asset.AssetManager;
 import app.main.controller.asset.FontManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.audio.AudioHandler;
-import app.utility.Utility;
-import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -28,7 +26,6 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
 
 public class OptionComponent extends BorderPane implements Component {
     private EventHandler<ActionEvent> onBackEvent;
@@ -116,7 +113,7 @@ public class OptionComponent extends BorderPane implements Component {
 
         musicSlider.setOnMouseReleased((e) -> {
             if (player.getStatus() == Status.PLAYING) {
-                musicHandler.stop();
+                musicHandler.getPlayer().stop();
             }
         });
 

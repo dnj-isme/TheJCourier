@@ -12,7 +12,6 @@ import app.utility.canvas.Vector2;
 import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
 
 public class PlayerAttackWalkState extends PlayerState{
 

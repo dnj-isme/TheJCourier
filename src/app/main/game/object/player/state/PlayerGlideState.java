@@ -1,11 +1,8 @@
 package app.main.game.object.player.state;
 
-import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
-import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.PlayerState;
-import app.utility.Utility;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Vector2;
 import javafx.scene.canvas.GraphicsContext;
@@ -22,7 +19,6 @@ public class PlayerGlideState extends PlayerState {
     return instance;
   }
 
-  private Image startSprite;
   private Image glideSprite;
   private Vector2 imageSize;
   private Player player;
@@ -32,7 +28,6 @@ public class PlayerGlideState extends PlayerState {
     this.player = player;
 
     AssetManager asset = AssetManager.getInstance();
-    startSprite = asset.findImage("player_glider_start");
     glideSprite = asset.findImage("player_glider");
     imageSize = new Vector2(60, 60);
   }

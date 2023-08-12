@@ -9,15 +9,12 @@ import app.main.controller.audio.AudioHandler;
 import app.main.controller.scene.SceneController;
 import app.main.game.scene.SpawnRoom;
 import app.utility.Utility;
-import app.utility.canvas.GameScene;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
-import javafx.util.Duration;
 
 public class SpawnScene extends GamePageTemplate{
   private GameController controller;
@@ -40,7 +37,7 @@ public class SpawnScene extends GamePageTemplate{
     Utility.delayAction(1000, new TimerTask() {
       @Override
       public void run() {
-        introMusic.play();
+        if(!getGameScene().isPaused()) introMusic.play();
       }
     });
     loopMode = false;
@@ -65,7 +62,7 @@ public class SpawnScene extends GamePageTemplate{
   public void handleStop() {
     Platform.runLater(() -> {
       for(double volume = loopMusic.getPlayer().getVolume(); volume >= 0.01; volume /= 1.5) {
-		if(introMusic.getPlayer() != null) {
+		if(introMusic.getPlayer() != null && !introMusic.isDisposed()) {
 			introMusic.getPlayer().setVolume(volume);
 		}
 		loopMusic.getPlayer().setVolume(volume);
@@ -76,7 +73,7 @@ public class SpawnScene extends GamePageTemplate{
 		  e.printStackTrace();
 		}
       }
-	  if(introMusic.getPlayer() != null) {
+	  if(introMusic.getPlayer() != null && !introMusic.isDisposed()) {
     	  introMusic.getPlayer().setVolume(0);
           introMusic.stop();
       }
@@ -87,8 +84,8 @@ public class SpawnScene extends GamePageTemplate{
 
   @Override
   public void handleResume() {
-    loopMusic.getPlayer().setVolume(controller.getMusic());
-    introMusic.getPlayer().setVolume(controller.getMusic());
+    loopMusic.setVolume(controller.getMusic());
+    introMusic.setVolume(controller.getMusic());
     if(loopMode) {
       loopMusic.play();
     }

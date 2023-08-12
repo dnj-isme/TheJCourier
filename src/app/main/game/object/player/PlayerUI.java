@@ -7,7 +7,6 @@ import app.utility.canvas.GameObject;
 import app.utility.canvas.GameScene;
 import app.utility.canvas.ObjectLayer;
 import app.utility.canvas.RenderProperties;
-import app.utility.canvas.Updatable;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;

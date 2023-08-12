@@ -94,10 +94,6 @@ public final class GameController {
   }
   
 
-  public void setFPS(double FPS) {
-    this.FPS = FPS;
-  }
-
   public double getFPS() {
     return FPS;
   }

@@ -27,9 +27,9 @@ public class BossUI extends GameObject{
     GraphicsContext context = properties.getContext();
     Vector2 renderPos = Vector2.renderTopCenter(boss.getPosition(), boss.getSize(), getSize());
     renderPos.subsY(10);
-    int p1 = Utility.clamp(boss.getHp() - 60, 0, 40);
-    int p2 = Utility.clamp(boss.getHp() - 30, 0 ,30);
-    int p3 = Utility.clamp(boss.getHp(), 0, 30);
+    int p1 = Utility.clamp(boss.getHp() - 60, 0, 40); // 61 - 100
+    int p2 = Utility.clamp(boss.getHp() - 30, 0 ,30); // 31 - 59
+    int p3 = Utility.clamp(boss.getHp(), 0, 30); // 0 - 30
     if(p3 > 0) {
       double width = (double) p3 / 30 * getSize().getX();
       context.setFill(Color.rgb(250, 50, 0));

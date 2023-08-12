@@ -6,7 +6,6 @@ import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.boss.Boss;
-import app.main.game.object.player.shuriken.Shuriken;
 import app.main.game.object.player.shuriken.ShurikenPool;
 import app.main.game.object.player.state.PlayerAttackGlideState;
 import app.main.game.object.player.state.PlayerAttackMidAir;
@@ -173,7 +172,7 @@ public class Player extends GameObject implements Updatable, Collidable {
     owner.addGameObject(playerGlideSwing);
   }
 
-  public Player(GameScene owner) {
+  private Player(GameScene owner) {
     super(owner);
     setLayer(ObjectLayer.Player);
 

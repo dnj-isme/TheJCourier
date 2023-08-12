@@ -5,31 +5,19 @@ import java.util.TimerTask;
 import app.main.controller.GameController;
 import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
-import app.main.controller.asset.FontManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.audio.AudioHandler;
 import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
-import app.main.game.object.boss.Boss;
 import app.main.game.object.player.Player;
 import app.main.game.scene.BossRoom;
-import app.main.game.scene.SpawnRoom;
 import app.main.view.YouWinMenu;
-import app.utility.SceneTemplate;
 import app.utility.Utility;
-import app.utility.canvas.GameScene;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
 
 public class BossScene extends GamePageTemplate {
   private static BossRoom room;
@@ -40,9 +28,11 @@ public class BossScene extends GamePageTemplate {
   private boolean loopMode = false;
   private boolean paused = false;
   private boolean end = false;
+  private GameController controller;
 
   public BossScene() {
     super(room = new BossRoom());
+    controller = GameController.getInstance();
     getBase().setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
     AssetManager asset = AssetManager.getInstance();
     introMusic = AudioFactory.createMusicHandler(asset.findAudio("bgm_boss_intro"), false);
@@ -56,7 +46,7 @@ public class BossScene extends GamePageTemplate {
     AudioFactory.createSfxHandler(asset.findAudio("sfx_boss_laff")).playThenDestroy();
     Player.getInstance(getGameScene()).setOnDead(() -> {
       loopMusic.stop();
-      introMusic.stop();
+	  introMusic.stop();
     });
 
     Platform.runLater(() -> {
@@ -94,9 +84,12 @@ public class BossScene extends GamePageTemplate {
 
   @Override
   public void handleResume() {
-    if (loopMode) {
+    loopMusic.setVolume(controller.getMusic());
+    introMusic.setVolume(controller.getMusic());
+    if(loopMode) {
       loopMusic.play();
-    } else {
+    }
+    else {
       introMusic.play();
     }
   }

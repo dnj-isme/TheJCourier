@@ -4,5 +4,5 @@ module TheJCRanger {
   requires javafx.controls;
   requires javafx.media;
   requires javafx.base;
-requires java.sql;
+  requires java.sql;
 }

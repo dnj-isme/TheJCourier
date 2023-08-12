@@ -72,9 +72,9 @@ public class BossLevitate extends BossState{
       switchPosition();
     }
 
-    // Check if state has reached 30 seconds. If so, force transition.
+    // Check if state has reached 15 seconds. If so, force transition.
     long currentTime = boss.getOwner().getTimeSpent();
-    if (currentTime - stateStart >= 12000) {
+    if (currentTime - stateStart >= 15000) {
       if(!transition) {
         transition = true;
         loop = false;

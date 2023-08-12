@@ -143,6 +143,10 @@ public final class AssetManager {
     imageCollection.put("throne", loadImage("assets/sprite/scene/Underworld_16_BackAsset12.png"));
     imageCollection.put("foreground1", loadImage("assets/sprite/scene/Underworld_16_GroundAsset06.png"));
     imageCollection.put("foreground2", loadImage("assets/sprite/scene/Underworld_16_GroundAsset07.png"));
+
+    // MEME Purpose
+    imageCollection.put("bananakin", loadImage("assets/sprite/bananakin.jpg"));
+    imageCollection.put("shenanigans", loadImage("assets/sprite/22_2_shenanigans.jpg"));
     // [END]
 
     Utility.debug("Finished Loading Images");

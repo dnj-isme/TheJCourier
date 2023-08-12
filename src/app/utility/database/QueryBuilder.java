@@ -1,7 +1,5 @@
 package app.utility.database;
 
-import java.util.ArrayList;
-
 public class QueryBuilder {
     public static InsertQuery insert(String table) {
         return new InsertQuery(table);

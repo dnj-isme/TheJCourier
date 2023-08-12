@@ -1,10 +1,8 @@
 package app.main.game.object.player.state;
 
-import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneController;
-import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.PlayerState;
 import app.main.view.YouLostMenu;

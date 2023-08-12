@@ -1,7 +1,5 @@
 package app.utility.canvas;
 
-import java.util.Comparator;
-
 public abstract class GameObject implements Drawable {
   private Vector2 position;
   private Vector2 size;

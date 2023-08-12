@@ -5,7 +5,6 @@ import app.main.controller.asset.AssetManager;
 import app.utility.canvas.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 
 public class Statue2 extends GameObject {
     private Image sprite;

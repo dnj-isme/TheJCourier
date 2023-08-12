@@ -1,18 +1,14 @@
 package app.main.view.component;
 
-import app.main.controller.GameController;
 import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.asset.FontManager;
 import app.main.controller.audio.AudioFactory;
-import app.main.controller.audio.AudioHandler;
-import app.utility.Utility;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.image.Image;

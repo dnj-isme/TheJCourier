@@ -92,9 +92,9 @@ public class SceneController {
       base.getChildren().add(target.getNode());
       observer.register(target);
       activeScene = target;
-      Utility.debug("Switching to " + target.getClass().getName());
+//      Utility.debug("Switching to " + target.getClass().getName());
     } else {
-      Utility.debug("Primary stage hasn't been binded yet!");
+//      Utility.debug("Primary stage hasn't been binded yet!");
     }
   }
 

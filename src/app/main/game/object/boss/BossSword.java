@@ -15,8 +15,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
-import java.util.function.IntToDoubleFunction;
-
 public class BossSword extends GameObject implements Updatable, Collidable {
 
   private final Image sprite;

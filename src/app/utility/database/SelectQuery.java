@@ -1,7 +1,5 @@
 package app.utility.database;
 
-import app.utility.Utility;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

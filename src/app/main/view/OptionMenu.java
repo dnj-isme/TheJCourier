@@ -14,7 +14,6 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
 
 public class OptionMenu extends SceneTemplate {

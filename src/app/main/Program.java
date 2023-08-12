@@ -1,24 +1,12 @@
 package app.main;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Iterator;
-
 import app.main.controller.GameController;
-import app.main.controller.HighScoreController;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.scene.SceneController;
-import app.main.game.object.player.Player;
-import app.main.game.scene.DeveloperRoom;
-import app.main.model.HighScoreRecord;
+import app.main.game.scene.BossRoom;
 import app.main.view.*;
 import app.main.view.game.BossScene;
 import app.main.view.game.DeveloperScene;
-import app.main.view.game.GamePageTemplate;
-import app.main.view.game.SpawnScene;
-import app.utility.Utility;
-import app.utility.database.DBConnect;
 import javafx.application.Application;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;

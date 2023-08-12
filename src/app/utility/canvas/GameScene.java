@@ -8,9 +8,7 @@ import app.utility.Utility;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Rotate;
 
 public abstract class GameScene {
   private Vector<GameObject> gameObjects;

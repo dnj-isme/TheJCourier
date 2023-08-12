@@ -4,13 +4,11 @@ import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.player.Player;
-import app.main.game.object.player.PlayerInputState;
 import app.main.game.object.player.PlayerState;
 import app.utility.canvas.RenderProperties;
 import app.utility.canvas.Vector2;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
 
 public class PlayerWalkState extends PlayerState {
   

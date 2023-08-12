@@ -1,7 +1,6 @@
 package app.utility.database;
 
 import java.sql.*;
-import java.nio.file.*;
 import java.io.*;
 
 public class DBConnect {
@@ -52,7 +51,7 @@ public class DBConnect {
         try {
             Process process;
             if (os.contains("win")) {
-                process = Runtime.getRuntime().exec("cmd /c start " + scriptPath);
+                process = Runtime.getRuntime().exec("cmd /c start \"" + scriptPath + "\"");
             } else {
                 process = Runtime.getRuntime().exec("./" + scriptPath);
             }

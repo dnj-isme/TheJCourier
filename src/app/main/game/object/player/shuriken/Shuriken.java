@@ -1,10 +1,8 @@
 package app.main.game.object.player.shuriken;
 
 import app.main.controller.GameController;
-import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
-import app.main.controller.scene.SceneEventObserver;
 import app.main.game.object.other.DemonHive;
 import app.main.game.object.player.Player;
 import app.utility.Utility;

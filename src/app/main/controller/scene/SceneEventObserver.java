@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import app.utility.SceneTemplate;
-import app.utility.Utility;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 

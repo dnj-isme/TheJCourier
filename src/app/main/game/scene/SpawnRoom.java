@@ -5,22 +5,17 @@ import java.util.Vector;
 import app.main.controller.KeyBinding;
 import app.main.controller.asset.AssetManager;
 import app.main.controller.audio.AudioFactory;
-import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
-import app.main.game.object.boss.BossPlaceholder;
 import app.main.game.object.other.*;
-import app.main.game.object.other.DemonHiveController.HiveTag;
 import app.main.game.object.player.Player;
 import app.main.game.object.player.shuriken.ShurikenPool;
 import app.main.game.object.player.swing.PlayerGlideSwing;
 import app.main.game.object.player.swing.PlayerSwing;
-import app.main.view.game.BossScene;
 import app.utility.Utility;
 import app.utility.canvas.Collidable;
 import app.utility.canvas.GameObject;
 import app.utility.canvas.GameScene;
 import app.utility.canvas.RenderProperties;
-import app.utility.canvas.Vector2;
 import javafx.application.Platform;
 
 public class SpawnRoom extends GameScene {

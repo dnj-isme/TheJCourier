@@ -7,22 +7,19 @@ import app.main.controller.asset.FontManager;
 import app.main.controller.audio.AudioFactory;
 import app.main.controller.scene.SceneController;
 import app.main.controller.scene.SceneEventObserver;
+import app.utility.Message;
 import app.utility.SceneTemplate;
-import app.utility.Utility;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
-
-import java.util.TimerTask;
 
 public class YouWinMenu extends SceneTemplate {
     private BorderPane base;
@@ -74,6 +71,7 @@ public class YouWinMenu extends SceneTemplate {
         applyButtonStyle(submit, textFont);
 
         title.setPadding(new Insets(0, 0, 60, 0));
+        title.setTextAlignment(TextAlignment.CENTER);
 
         name.setMaxWidth(600);
         name.setFont(textFont);
@@ -135,10 +133,13 @@ public class YouWinMenu extends SceneTemplate {
         cancel.setOnMouseClicked((e) -> {
             AudioFactory.createSfxHandler(asset.findAudio("sfx_menu_select_8")).playThenDestroy();
             controller.switchScene(new MainMenu(), 500);
-
         });
         submit.setOnMouseClicked((e) -> {
-            AudioFactory.createSfxHandler(asset.findAudio("sfx_menu_select_8")).playThenDestroy();
+        	AudioFactory.createSfxHandler(asset.findAudio("sfx_menu_select_8")).playThenDestroy();
+            if(name.getText().length() == 0) {
+            	title.setText("The name cannot be\nempty!");
+                return;
+            }
             HighScoreController.getInstance().saveHighScore(name.getText(), GameController.getInstance().getWinTime());
             controller.switchScene(new MainMenu(), 500);
         });
